@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">CokeFacts</string>
+    <string name="action_settings">Settings</string>
+    <string name="show_facts">Click to view</string>
+    <string name="fact1">Cola is a sweetened, carbonated soft drink, derived from drinks that originally contained caffeine from the kola nut and cocaine from coca leaves, flavored with vanilla and other ingredients.</string>
+    <string name="fact2">A 2007 study found that consumption of colas, both those with natural sweetening and those with artificial sweetening, was associated with increased risk of chronic kidney disease.</string>
+    <string name="fact3">Coke drink  was once green.</string>
+    <string name="fact4">Use Coke as an easy and very effective insect repellent.</string>
+    <string name="fact5">Cola can be used to remove blood stains from clothes.</string>
+    <string name="title_activity_facts">FactsActivity</string>
+    <string name="prev_hint">Previous</string>
+    <string name="next_hint">Next</string>
+</resources>
