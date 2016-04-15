@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:context="com.course.cokefacts.FactsActivity"
+        tools:showIn="@layout/activity_facts"
+        android:orientation="vertical"
+        style="@style/FactsLinearLayout">
+    <FrameLayout
+        style="@style/FactsFrameLayout"
+        android:orientation="horizontal">
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/coke_facts_pager"
+            style="@style/ViewPager"
+            android:scrollbarStyle="insideInset"/>
+
+        <ImageButton
+            android:id="@+id/left_nav"
+            android:layout_gravity="center_vertical|left"
+            style="@style/ArrowImgButton"
+            android:src="@drawable/left_arrow" />
+
+        <ImageButton
+            android:id="@+id/right_nav"
+            android:layout_gravity="center_vertical|right"
+            style="@style/ArrowImgButton"
+            android:src="@drawable/right_arrow" />
+
+    </FrameLayout>
+        <ImageView
+            android:id="@+id/coke_background_img"
+            style="@style/CokeImg"
+            android:scaleType="centerCrop"
+            android:src="@drawable/coke_background" />
+    </LinearLayout>
+
+
+
