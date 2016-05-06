@@ -1,0 +1,12 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="none_size">0dp</dimen>
+    <dimen name="arrow_size_img_btn">48dp</dimen>
+    <dimen name="coke_start_img_padding_bottom">32dp</dimen>
+    <dimen name="show_facts_btn_txt_size">24dp</dimen>
+    <dimen name="fact_txt_size">20dp</dimen>
+    <dimen name="fact_size">50dp</dimen>
+</resources>

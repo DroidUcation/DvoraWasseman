@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+
+    <ImageView
+        android:scaleType = "centerCrop"
+        style="@style/CokeBackgroundImg"
+        android:id="@+id/coke_start_img"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/coke_start_img"
+        android:layout_centerHorizontal="true"
+        android:text="@string/show_facts"
+        android:textColor="@android:color/holo_red_dark"
+        android:textSize="@dimen/show_facts_btn_txt_size"
+        android:id="@+id/show_facts_btn"/>
+</RelativeLayout>
