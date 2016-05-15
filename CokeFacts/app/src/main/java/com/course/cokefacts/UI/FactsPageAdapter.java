@@ -1,4 +1,4 @@
-package com.course.cokefacts;
+package com.course.cokefacts.UI;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;

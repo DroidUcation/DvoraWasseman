@@ -1,11 +1,14 @@
-package com.course.cokefacts;
+package com.course.cokefacts.UI;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.course.cokefacts.R;
 
 /**
  * Page fragment.
@@ -31,8 +34,17 @@ public class PageFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)   {
         View view = inflater.inflate(R.layout.facts_fragment_layout, container, false);
-        tv = (TextView) view.findViewById(R.id.fact_txt);
-        tv.setText(getArguments().getString("fact"));
+        View textView = view.findViewById(R.id.fact_txt);
+        if(textView != null){
+            tv = (TextView) textView;
+            Bundle bundle = getArguments();
+            if(tv != null && bundle != null) {
+                tv.setText(bundle.getString("fact"));
+            }
+        } else {
+            Log.e("PageFragment","Not excepted to get null for TextView");
+        }
+
         return view;
     }
 }

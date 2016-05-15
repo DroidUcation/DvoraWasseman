@@ -7,7 +7,10 @@
     <string name="fact3">Coke drink  was once green.</string>
     <string name="fact4">Use Coke as an easy and very effective insect repellent.</string>
     <string name="fact5">Cola can be used to remove blood stains from clothes.</string>
+    <string name="new_fact">Fact number %1$d, created on %2$s.</string>
     <string name="title_activity_facts">FactsActivity</string>
     <string name="prev_hint">Previous</string>
     <string name="next_hint">Next</string>
+
+
 </resources>
