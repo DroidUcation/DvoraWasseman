@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Final Project</string>
+    <string name="user_uploaded_text">Added by %1$s on %2$s.</string>
+</resources>
