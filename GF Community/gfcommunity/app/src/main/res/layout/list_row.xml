@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="70dp"
+    android:layout_height="@dimen/relative_layout_height_list_row"
     xmlns:tools="http://schemas.android.com/tools"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:layout_marginTop="10dp"
-    android:layout_marginBottom="10dp">
+    android:paddingLeft="@dimen/margin"
+    android:paddingRight="@dimen/margin"
+    android:layout_marginTop="@dimen/relative_layout_margin_list_row"
+    android:layout_marginBottom="@dimen/relative_layout_margin_list_row">
 
     <ImageView
     android:id="@+id/row_img"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_centerVertical="true"
-    android:layout_marginRight="16dp"
+    android:layout_marginRight="@dimen/margin"
     android:contentDescription="Product image"
     tools:src="@mipmap/ic_launcher" />
 

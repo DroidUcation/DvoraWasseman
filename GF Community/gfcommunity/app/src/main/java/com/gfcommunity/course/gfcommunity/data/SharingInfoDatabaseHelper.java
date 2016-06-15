@@ -17,7 +17,7 @@ public class SharingInfoDatabaseHelper extends SQLiteOpenHelper {
     private static final String CREATE_TABLE_PRODUCTS =
             "CREATE TABLE IF NOT EXISTS "
             + SharingInfoContract.ProductsEntry.TABLE_NAME + "("
-            + " id INTEGER PRIMARY KEY, "
+            + SharingInfoContract.ProductsEntry._ID + " INTEGER PRIMARY KEY, "
             + SharingInfoContract.ProductsEntry.PRODUCT_NAME + " TEXT, "
             + SharingInfoContract.ProductsEntry.STORE_NAME + " TEXT, "
             + SharingInfoContract.ProductsEntry.IMAGE + " BLOB, "
@@ -50,7 +50,6 @@ public class SharingInfoDatabaseHelper extends SQLiteOpenHelper {
         values.put(SharingInfoContract.ProductsEntry.STREET, "Yigal Alon");
         values.put(SharingInfoContract.ProductsEntry.CITY, "Bnei Brak");
         db.insert(SharingInfoContract.ProductsEntry.TABLE_NAME,null, values);
-        SystemClock.sleep(2000);
     }
 
     @Override

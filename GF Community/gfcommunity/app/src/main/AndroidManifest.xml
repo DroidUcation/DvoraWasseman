@@ -34,12 +34,14 @@
             android:authorities="com.gfcommunity.course.gfcommunity.data.ProductsContentProvider"
             android:exported="false" />
 
-        <activity android:name=".activities.AddProductActivity"></activity>
+        <activity android:name=".activities.AddProductActivity" />
 
-        <!-- Google place API key
+        <!-- Google place API key -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDObahXPXOKU6vV2eUH55O7pITmrdKBKYk"/>-->
+            android:value="R.string.places_api_key" />
+
+        <activity android:name=".activities.ProductDetailsActivity"></activity>
     </application>
 
 </manifest>

@@ -1,9 +1,8 @@
 <resources>
-    <string name="app_name">Final Project</string>
+    <string name="app_name">GF Community</string>
     <string name="user_uploaded_text">Added by %1$s on %2$s.</string>
     <string name="no_records">No records found</string>
     <string name="address">%1$d %2$s Street %3$s</string>
-    <string name="title_activity_main2">Main2Activity</string>
     <string name="product_name">Product name</string>
     <string name="store_name">Store name</string>
     <string name="store_url">URL</string>
@@ -12,4 +11,5 @@
     <string name="comment">Comment</string>
     <string name="add_product">Add product</string>
     <string name="store_details">Store details</string>
+    <string name="places_api_key">AIzaSyCEsq36NBlHcfNnyxemW-YfmV_EFIqLeNM</string>
 </resources>

@@ -14,13 +14,14 @@ import android.widget.Button;
 
 import com.gfcommunity.course.gfcommunity.R;
 import com.gfcommunity.course.gfcommunity.data.SharingInfoContract;
-import com.gfcommunity.course.gfcommunity.location.PlacesAutoCompleteAdapter;
+import com.gfcommunity.course.gfcommunity.places.PlacesAutoCompleteAdapter;
 
 
 import com.gfcommunity.course.gfcommunity.products.InsertProductLoader;
 
 import android.net.Uri;
 import android.widget.EditText;
+import android.widget.Toast;
 
 
 public class AddProductActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Uri>, View.OnClickListener {
@@ -31,7 +32,7 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
     private EditText storePhoneEditTxt;
     private EditText commentEditTxt;
     private int loaderID = 0;
-    private String tag = "AddProductActivity";
+    private String logTag = AddProductActivity.class.getName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +49,7 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
         storeNameEditTxt  = (EditText) findViewById(R.id.store_edit_txt);
         storeUrlEditTxt  = (EditText) findViewById(R.id.store_url_edit_txt);
         storePhoneEditTxt  = (EditText) findViewById(R.id.store_phone_edit_txt);
-        commentEditTxt = (EditText) findViewById(R.id.product_comment_edit_txt);
+        commentEditTxt = (EditText) findViewById(R.id.product_comment_txt);
         addProductBtn.setOnClickListener(this);
     }
 
@@ -69,9 +70,10 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
 
     @Override
     public void onLoadFinished(Loader<Uri> loader, Uri data) {
-        Log.i(tag,"Finish inserting product: "+ productNameEditTxt.getText().toString());
+        Log.i(logTag, "Insert product succssed: "+ productNameEditTxt.getText().toString());
         Intent intent = new Intent(this, ProductsActivity.class);
         startActivity(intent);
+        Toast.makeText(this,"Product is inserted successfully",Toast.LENGTH_SHORT);//TODO: Show inserted successfully popup
     }
 
     @Override

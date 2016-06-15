@@ -1,6 +1,10 @@
-package com.gfcommunity.course.gfcommunity.location;
+package com.gfcommunity.course.gfcommunity.places;
 
+import android.content.Context;
 import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.Filterable;
+import android.widget.Filter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,31 +18,68 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
-/**
- * Called PlaceAPI that will send requests to the API over HTTP
- * and then parse the response JSON to build a list of strings containing the description key
- * which contains the city/state/country names (like “Bangalore, Karnataka, India”).
- */
-public class PlaceAPI {
+public class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements Filterable {
 
-    private static final String TAG = PlaceAPI.class.getSimpleName();
-
+    private static final String LOG_TAG = PlacesAutoCompleteAdapter.class.getName();
     private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
     private static final String TYPE_AUTOCOMPLETE = "/autocomplete";
     private static final String OUT_JSON = "/json";
+    private static final String API_KEY = "AIzaSyCEsq36NBlHcfNnyxemW-YfmV_EFIqLeNM";
 
-    private static final String API_KEY = "AIzaSyDObahXPXOKU6vV2eUH55O7pITmrdKBKYk";
+    private ArrayList<String> resultList;
 
-    public ArrayList<String> autocomplete (String input) {
+    public PlacesAutoCompleteAdapter(Context context, int textViewResourceId) {
+        super(context, textViewResourceId);
+    }
+
+    @Override
+    public int getCount() {
+        return resultList.size();
+    }
+
+    @Override
+    public String getItem(int index) {
+        return resultList.get(index);
+    }
+
+    @Override
+    public Filter getFilter() {
+        Filter filter = new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                FilterResults filterResults = new FilterResults();
+                if (constraint != null) {
+                    // Retrieve the autocomplete results.
+                    resultList = autocomplete(constraint.toString());
+
+                    // Assign the data to the FilterResults
+                    filterResults.values = resultList;
+                    filterResults.count = resultList.size();
+                }
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                if (results != null && results.count > 0) {
+                    notifyDataSetChanged();
+                } else {
+                    notifyDataSetInvalidated();
+                }
+            }
+        };
+        return filter;
+    }
+
+    private ArrayList<String> autocomplete(String input) {
         ArrayList<String> resultList = null;
 
         HttpURLConnection conn = null;
         StringBuilder jsonResults = new StringBuilder();
-
         try {
             StringBuilder sb = new StringBuilder(PLACES_API_BASE + TYPE_AUTOCOMPLETE + OUT_JSON);
             sb.append("?key=" + API_KEY);
-            sb.append("&types=(cities)");
+            sb.append("&components=country:il");
             sb.append("&input=" + URLEncoder.encode(input, "utf8"));
 
             URL url = new URL(sb.toString());
@@ -52,10 +93,10 @@ public class PlaceAPI {
                 jsonResults.append(buff, 0, read);
             }
         } catch (MalformedURLException e) {
-            Log.e(TAG, "Error processing Places API URL", e);
+            Log.e(LOG_TAG, "Error processing Places API URL: ", e);
             return resultList;
         } catch (IOException e) {
-            Log.e(TAG, "Error connecting to Places API", e);
+            Log.e(LOG_TAG, "Error connecting to Places API: ", e);
             return resultList;
         } finally {
             if (conn != null) {
@@ -74,9 +115,10 @@ public class PlaceAPI {
                 resultList.add(predsJsonArray.getJSONObject(i).getString("description"));
             }
         } catch (JSONException e) {
-            Log.e(TAG, "Cannot process JSON results", e);
+            Log.e(LOG_TAG, "Cannot process JSON results", e);
         }
 
         return resultList;
     }
+
 }
