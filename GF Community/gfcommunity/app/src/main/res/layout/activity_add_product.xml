@@ -35,15 +35,36 @@
         <EditText
             android:id="@+id/store_edit_txt"
             android:layout_height="wrap_content"
-            android:hint="@string/store_name"
+            android:hint="@string/name"
             android:inputType="text"
             android:layout_width="fill_parent">
         </EditText>
-        <AutoCompleteTextView
+        <Spinner
+            android:spinnerMode="dropdown"
+            android:id="@+id/citiesSpinner"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/cities_array"
+            android:prompt="@string/city"/>
+        <EditText
+            android:id="@+id/store_street_edit_txt"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:hint="@string/street"
+            android:inputType="text">
+        </EditText>
+        <EditText
+            android:id="@+id/store_house_no_edit_txt"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:hint="@string/house_no"
+            android:inputType="number">
+        </EditText>
+        <!--<AutoCompleteTextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:id="@+id/address_edit_txt"
-            android:hint="@string/store_address" />
+            android:hint="@string/store_address" />-->
         <EditText
             android:id="@+id/store_url_edit_txt"
             android:layout_height="wrap_content"
@@ -62,16 +83,9 @@
             android:id="@+id/product_comment_txt"
             android:layout_height="wrap_content"
             android:hint="@string/comment"
-            android:inputType="phone"
+            android:inputType="text"
             android:layout_width="fill_parent">
         </EditText>
-        <!--<Spinner
-        android:id="@+id/SpinnerFeedbackType"
-        android:layout_height="wrap_content"
-        android:prompt="@string/feedbacktype"
-        android:layout_width="fill_parent"
-        android:entries="@array/feedbacktypelist">
-    </Spinner>-->
         <Button
             android:id="@+id/add_product_btn"
             android:layout_height="wrap_content"

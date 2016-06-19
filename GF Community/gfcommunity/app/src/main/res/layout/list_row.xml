@@ -6,7 +6,8 @@
     android:paddingLeft="@dimen/margin"
     android:paddingRight="@dimen/margin"
     android:layout_marginTop="@dimen/relative_layout_margin_list_row"
-    android:layout_marginBottom="@dimen/relative_layout_margin_list_row">
+    android:layout_marginBottom="@dimen/relative_layout_margin_list_row"
+    android:background="@drawable/custom_bg">
 
     <ImageView
     android:id="@+id/row_img"
@@ -31,26 +32,24 @@
             android:gravity="center_vertical"
             tools:text="Title"
             android:ellipsize="end"
-            android:maxLines="1"
+            android:singleLine="true"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"/>
 
         <TextView
             android:id="@+id/row_subtitle"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:singleLine="true"
             tools:text="Sub title"
             android:ellipsize="end"
-            android:maxLines="1"/>
+            android:singleLine="true"/>
 
         <TextView
             android:id="@+id/row_text"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:singleLine="true"
             tools:text="Text"
             android:ellipsize="end"
-            android:maxLines="1"/>
+            android:singleLine="true"/>
     </LinearLayout>
 
 </RelativeLayout>

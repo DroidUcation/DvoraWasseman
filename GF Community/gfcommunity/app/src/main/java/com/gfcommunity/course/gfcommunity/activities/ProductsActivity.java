@@ -12,8 +12,11 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 
 import com.gfcommunity.course.gfcommunity.R;
 import com.gfcommunity.course.gfcommunity.data.ProductsContentProvider;
@@ -23,12 +26,13 @@ import com.gfcommunity.course.gfcommunity.recyclerView.ProductsAdapter;
 
 
 
-public class ProductsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener {
+public class ProductsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener , AdapterView.OnItemSelectedListener{
     private int loaderID = 0; // Identifies a particular Loader being used in this component
     private ProductsAdapter productsAdapter;
     private RecyclerView recyclerView;
     private ImageView noRecordsImg;
     private ProgressBar progressBar;
+    private String selectedCity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +55,10 @@ public class ProductsActivity extends AppCompatActivity implements LoaderManager
         //Adding fab
         FloatingActionButton addFab = (FloatingActionButton) findViewById(R.id.add_fab);
         addFab.setOnClickListener(this);
+        Spinner citiesSpinner = (Spinner) findViewById(R.id.citiesSpinner);
+        //Cities spinner
+        citiesSpinner.setPrompt(getResources().getString(R.string.city));
+        citiesSpinner.setOnItemSelectedListener(this);
     }
 
     @Override
@@ -89,4 +97,20 @@ public class ProductsActivity extends AppCompatActivity implements LoaderManager
                 break;
         }
     }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        selectedCity = parent.getItemAtPosition(position).toString();
+        productsAdapter.getFilter().filter(selectedCity,new Filter.FilterListener() {
+            @Override
+            public void onFilterComplete(int count) {
+            }
+        });
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
 }

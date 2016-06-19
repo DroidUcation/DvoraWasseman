@@ -4,12 +4,92 @@
     <string name="no_records">No records found</string>
     <string name="address">%1$d %2$s Street %3$s</string>
     <string name="product_name">Product name</string>
-    <string name="store_name">Store name</string>
+    <string name="name">Name</string>
     <string name="store_url">URL</string>
     <string name="store_address">Address</string>
+    <string name="city">City</string>
+    <string name="street">Street</string>
+    <string name="house_no">House No.</string>
     <string name="store_phone">Phone</string>
     <string name="comment">Comment</string>
     <string name="add_product">Add product</string>
     <string name="store_details">Store details</string>
     <string name="places_api_key">AIzaSyCEsq36NBlHcfNnyxemW-YfmV_EFIqLeNM</string>
+
+    <!-->Israel cities array<!-->
+    <string-array name="cities_array">
+        <item>Acrea</item>
+        <item>Afula</item>
+        <item>Arad</item>
+        <item>Ariel</item>
+        <item>Ashdod</item>
+        <item>Ashkelond</item>
+        <item>Bat Yam</item>
+        <item>Beershebae</item>
+        <item>Beit She\'an</item>
+        <item>Beit Shemeshg</item>
+        <item>Beitar Illit</item>
+        <item>Bnei Brak</item>
+        <item>Dimona</item>
+        <item>Eilat</item>
+        <item>El\'ad</item>
+        <item>Giv\'at Shmuel</item>
+        <item>Givatayim</item>
+        <item>Hadera</item>
+        <item>Haifa</item>
+        <item>Herzliya</item>
+        <item>Hod HaSharon</item>
+        <item>Holon</item>
+        <item>Jerusalem</item>
+        <item>Karmiell</item>
+        <item>Kfar Saba</item>
+        <item>Kfar Yona</item>
+        <item>Kiryat Ata</item>
+        <item>Kiryat Bialikq</item>
+        <item>Kiryat Gat</item>
+        <item>Kiryat Malakhis</item>
+        <item>Kiryat Motzkint</item>
+        <item>Kiryat Onou</item>
+        <item>Kiryat Shmonav</item>
+        <item>Kiryat Yam</item>
+        <item>Lod</item>
+        <item>Ma\'ale Adumim</item>
+        <item>Ma\'alot-Tarshiha</item>
+        <item>Migdal HaEmek</item>
+        <item>Modi\'in Illit</item>
+        <item>Modi\'in-Maccabim-Re\'ut</item>
+        <item>Nahariya</item>
+        <item>Nazareth</item>
+        <item>Nazareth Illit</item>
+        <item>Nesher</item>
+        <item>Ness Ziona</item>
+        <item>Netanya</item>
+        <item>Netivot</item>
+        <item>Ofakim</item>
+        <item>Or Akiva</item>
+        <item>Or Yehuda</item>
+        <item>Petah Tikva</item>
+        <item>Qalansawe</item>
+        <item>Ra\'anana</item>
+        <item>Rahat</item>
+        <item>Ramat Gan</item>
+        <item>Ramat HaSharon</item>
+        <item>Ramla</item>
+        <item>Rehovot</item>
+        <item>Rishon LeZion</item>
+        <item>Rosh HaAyin</item>
+        <item>Safed</item>
+        <item>Sderot</item>
+        <item>Shfar\'am</item>
+        <item>Tamra</item>
+        <item>Tayibe</item>
+        <item>Tel Aviv</item>
+        <item>Tiberias</item>
+        <item>Tira</item>
+        <item>Tirat Carmel</item>
+        <item>Umm al-Fahm</item>
+        <item>Yavne</item>
+        <item>Yehud</item>
+        <item>Yokneam</item>
+    </string-array>
 </resources>

@@ -34,38 +34,53 @@
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Large">
         </TextView>
         <TextView
-            android:id="@+id/store_txt"
+            android:id="@+id/store_name_txt"
             android:layout_height="wrap_content"
-            tools:text="@string/store_name"
+            tools:text="@string/name"
             android:layout_width="fill_parent">
         </TextView>
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:id="@+id/address_txt"
-            android:hint="@string/store_address" />
+            tools:text="@string/store_address"
+            android:autoLink="map"/>
         <TextView
             android:id="@+id/store_url_txt"
             android:layout_height="wrap_content"
-            android:hint="@string/store_url"
-            android:layout_width="fill_parent">
+            android:layout_width="fill_parent"
+            tools:text="@string/store_url"
+            android:autoLink="web"
+            android:linksClickable="true">
         </TextView>
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:orientation="horizontal"
+            android:layout_height="fill_parent">
+            <ImageView
+                android:id="@+id/store_phone_img"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:src="@android:drawable/stat_sys_phone_call" />
+            <TextView
+                android:id="@+id/store_phone_txt"
+                android:layout_height="wrap_content"
+                tools:text="@string/store_phone"
+                android:autoLink="phone"
+                android:layout_width="fill_parent">
+            </TextView>
+        </LinearLayout>
         <TextView
-            android:id="@+id/store_phone_txt"
-            android:layout_height="wrap_content"
-            android:hint="@string/store_phone"
-            android:layout_width="fill_parent">
-        </TextView>
-        <TextView
-            android:id="@+id/product_comment"
+            android:id="@+id/product_comment_txt"
             android:layout_height="wrap_content"
             tools:text="@string/comment"
             android:layout_width="fill_parent">
         </TextView>
         <TextView
-            android:id="@+id/product_user_upploaded_txt"
+            android:id="@+id/product_user_uploaded_txt"
             android:layout_height="wrap_content"
-            tools:text="@string/comment"
+            tools:text="@string/user_uploaded_text"
             android:layout_width="fill_parent">
         </TextView>
     </LinearLayout>

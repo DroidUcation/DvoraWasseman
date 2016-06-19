@@ -1,4 +1,4 @@
-package com.gfcommunity.course.gfcommunity;
+package com.gfcommunity.course.gfcommunity.model;
 
 
 import java.io.Serializable;
