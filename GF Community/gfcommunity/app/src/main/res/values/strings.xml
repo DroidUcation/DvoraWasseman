@@ -15,6 +15,9 @@
     <string name="add_product">Add product</string>
     <string name="store_details">Store details</string>
     <string name="places_api_key">AIzaSyCEsq36NBlHcfNnyxemW-YfmV_EFIqLeNM</string>
+    <string name="required_err_msg">%1$s is required</string>
+    <string name="store_name">Store name</string>
+    <string name="required_err_msg_default">This field is required</string>
 
     <!-->Israel cities array<!-->
     <string-array name="cities_array">

@@ -24,8 +24,6 @@ import com.gfcommunity.course.gfcommunity.places.PlacesAutoCompleteAdapter;
 
 
 import com.gfcommunity.course.gfcommunity.products.InsertProductLoader;
-import com.gfcommunity.course.gfcommunity.utils.TextValidator;
-
 import android.net.Uri;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -43,7 +41,7 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
     private EditText storeHouseNoEditTxt;
     private int loaderID = 0;
     private String logTag = AddProductActivity.class.getName();
-    private String selectedCity;
+        private String selectedCity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +80,7 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
         //Cities spinner
         citiesSpinner.setPrompt(getResources().getString(R.string.city));
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.cities_array));
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_list_item_checked);// Drop down layout style - list view with radio button
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);// Drop down layout style - list view with radio button
         citiesSpinner.setAdapter(dataAdapter);
     }
 
@@ -148,23 +146,81 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
      */
     private boolean isValidatedForm() {
         boolean isValid = false;
-        if(validateRequiredText(storeNameEditTxt) && validateRequiredText(productNameEditTxt) && validateRequiredText(storeNameEditTxt) ) {
-            //TODO: Continue validation
+        boolean isProductNameFilled = validateRequiredText(productNameEditTxt);
+        boolean isStoreNameFilled = validateRequiredText(storeNameEditTxt);
+        boolean isStroreAddressOrStoreUrlFilled = validateRequiredAddressOrUrl(storeUrlEditTxt, storeStreetEditTxt, storeHouseNoEditTxt); //Validate store address or store url (one of them is required)
+        if(isProductNameFilled && isStoreNameFilled && isStroreAddressOrStoreUrlFilled) {
             isValid = true;
         }
         return isValid;
     }
 
+    /**
+     * Set view error message by view id and set view focus
+     * @param view
+     */
+    private void setErrorMsg(EditText view){
+        String errMessage = getString(R.string.required_err_msg_default);
+        switch (view.getId()) {
+            case R.id.product_name_edit_text:
+                errMessage = (String.format(getResources().getString(R.string.required_err_msg),getString(R.string.product_name)));
+                break;
+            case R.id.store_edit_txt:
+                errMessage = (String.format(getResources().getString(R.string.required_err_msg),getString(R.string.store_name)));
+                break;
+            case R.id.store_street_edit_txt:
+                errMessage = (String.format(getResources().getString(R.string.required_err_msg),getString(R.string.street)));
+                break;
+            case R.id.store_house_no_edit_txt:
+                errMessage = (String.format(getResources().getString(R.string.required_err_msg),getString(R.string.house_no)));
+                break;
+            case R.id.store_url_edit_txt:
+                errMessage = (String.format(getResources().getString(R.string.required_err_msg),getString(R.string.store_url)));
+                break;
+        }
+        view.setError(errMessage);
+        requestFocus(view);
+    }
+
     private boolean validateRequiredText(EditText editTextView) {
         if (TextUtils.isEmpty(editTextView.getText().toString().trim())) {
-            //TODO: Set fit message
-            String errMessage = "is required!";
-            //editTextView.setError(getString(R.string.err_msg_name));
-            editTextView.setError(errMessage);
-            requestFocus(editTextView);
+            setErrorMsg(editTextView);
             return false;
         }
         return true;
+    }
+
+    /**
+     * Check if store url or address is not empty (one of them is required)
+     * @param storeUrlEditTxt
+     * @param storeStreetEditTxt
+     * @param storeHouseNoEditTxt
+     * @return isValid-boolean
+     */
+    private boolean validateRequiredAddressOrUrl(EditText storeUrlEditTxt, EditText storeStreetEditTxt, EditText storeHouseNoEditTxt) {
+        boolean isUrlEmpty = TextUtils.isEmpty(storeUrlEditTxt.getText().toString().trim());
+        boolean isCityEmpty = TextUtils.isEmpty(selectedCity.toString().trim());
+        boolean isStreetEmpty = TextUtils.isEmpty(storeStreetEditTxt.getText().toString().trim());
+        boolean isHouseNoEmpty = TextUtils.isEmpty(storeHouseNoEditTxt.getText().toString().trim());
+        boolean isValid = true;
+        if(!isUrlEmpty && (isCityEmpty || isStreetEmpty || isHouseNoEmpty)) {
+            if(isCityEmpty) {
+                //TODO: set spinner error
+                isValid = false;
+            }
+            if(isStreetEmpty) {
+                setErrorMsg(storeStreetEditTxt);
+                isValid = false;
+            }
+            if(isHouseNoEmpty) {
+                setErrorMsg(storeHouseNoEditTxt);
+                isValid = false;
+            }
+        } else {
+            setErrorMsg(storeUrlEditTxt);
+            isValid = false;
+        }
+        return isValid;
     }
 
     private void requestFocus(View view) {
@@ -195,7 +251,6 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
                 case R.id.store_edit_txt:
                     validateRequiredText((EditText)view);
                     break;
-                //TODO: Continue validation
             }
         }
     }

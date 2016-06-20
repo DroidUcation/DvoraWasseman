@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import com.gfcommunity.course.gfcommunity.activities.ProductsActivity;
 import com.gfcommunity.course.gfcommunity.data.ProductsContentProvider;
 import com.gfcommunity.course.gfcommunity.model.Product;
 import com.gfcommunity.course.gfcommunity.R;
@@ -34,6 +35,10 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
     static Cursor cursor;
     static Context context;
     private List<Product> mProducts;
+
+    public ProductsAdapter(ProductsActivity productsActivity, Cursor cursor) {
+    }
+
     @Override
     public Filter getFilter() {
        return new Filter() {
@@ -60,9 +65,6 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
     private ArrayList<Product> getFilteredList(CharSequence constraint) {
 
         String query = constraint.toString().toLowerCase();
-
-        // String[] projection = VozejkMapContract.PoiEntry.POI_COLUMNS;
-        //  String selection = VozejkMapContract.PoiEntry.SEARCH_TITLE + " LIKE '" + query + "%' OR " + VozejkMapContract.PoiEntry.SEARCH_TITLE + " LIKE '% " + query + "%'";
         String selection = SharingInfoContract.ProductsEntry.CITY + " LIKE '" + query +"'";
 
         Cursor cursor = context.getContentResolver().query(ProductsContentProvider.PRODUCTS_CONTENT_URI, null, selection, null, null);
@@ -107,7 +109,8 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
             Product product = productsMap.get(productID);
             //Set the product only if it's the first clicking (the product is not initialized to map)
             if(product == null){
-                productsMap.put(productID, setProductValues());
+                product = setProductValues();
+                productsMap.put(productID, product );
             }
 
             Intent intent = new Intent(context, ProductDetailsActivity.class);

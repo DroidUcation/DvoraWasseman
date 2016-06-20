@@ -9,6 +9,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:entries="@array/cities_array"
+        android:visibility="gone"
+        android:layout_marginBottom="8dp"
         android:prompt="@string/city"/>
 
     <android.support.v7.widget.RecyclerView
@@ -17,6 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
+        android:layout_below="@id/citiesSpinner"
      />
 
     <!-- Empty view which will be shown when the RecyclerView is empty -->
