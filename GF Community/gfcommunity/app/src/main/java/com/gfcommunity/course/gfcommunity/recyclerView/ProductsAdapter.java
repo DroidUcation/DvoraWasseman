@@ -9,12 +9,11 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 
-import com.gfcommunity.course.gfcommunity.activities.ProductsActivity;
+import com.gfcommunity.course.gfcommunity.activities.ProductsFragment;
 import com.gfcommunity.course.gfcommunity.data.ProductsContentProvider;
 import com.gfcommunity.course.gfcommunity.model.Product;
 import com.gfcommunity.course.gfcommunity.R;
@@ -35,9 +34,6 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
     static Cursor cursor;
     static Context context;
     private List<Product> mProducts;
-
-    public ProductsAdapter(ProductsActivity productsActivity, Cursor cursor) {
-    }
 
     @Override
     public Filter getFilter() {

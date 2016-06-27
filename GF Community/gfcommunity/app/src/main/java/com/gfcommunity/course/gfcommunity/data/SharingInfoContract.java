@@ -20,6 +20,7 @@ public class SharingInfoContract {
             public static  final String COMMENT = "comment";
             public static  final String PHONE = "phone";
             public static  final String CREATED_AT = "created_at";
+            public static  final String IMAGE_URL = "img_url";
             public static final String USER_ID = "user_id";
     }
 }

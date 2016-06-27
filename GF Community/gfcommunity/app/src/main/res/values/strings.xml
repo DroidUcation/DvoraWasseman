@@ -30,7 +30,7 @@
         <item>Bat Yam</item>
         <item>Beershebae</item>
         <item>Beit She\'an</item>
-        <item>Beit Shemeshg</item>
+        <item>Beit Shemesh</item>
         <item>Beitar Illit</item>
         <item>Bnei Brak</item>
         <item>Dimona</item>
@@ -95,4 +95,13 @@
         <item>Yehud</item>
         <item>Yokneam</item>
     </string-array>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Blank fragment</string>
+    <string name="title_activity_main2">Main2Activity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
 </resources>

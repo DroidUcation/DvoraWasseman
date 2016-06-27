@@ -2,7 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.gfcommunity.course.gfcommunity">
 
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -10,36 +18,36 @@
         android:supportsRtl="true"
         android:theme="@style/MyMaterialTheme">
         <activity android:name=".activities.MainActivity">
-
-            <!--
-           <intent-filter>
-              <action android:name="android.intent.action.MAIN" />
-
-               <category android:name="android.intent.category.LAUNCHER" />
-           </intent-filter>
-            -->
-        </activity>
-        <activity android:name=".activities.ProductsActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                 <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+                 <category android:name="android.intent.category.LAUNCHER" />
+             </intent-filter>
+         </activity>
 
-        <provider
-            android:name=".data.ProductsContentProvider"
-            android:authorities="com.gfcommunity.course.gfcommunity.data.ProductsContentProvider"
-            android:exported="false" />
+         <provider
+             android:name=".data.ProductsContentProvider"
+             android:authorities="com.gfcommunity.course.gfcommunity.data.ProductsContentProvider"
+             android:exported="false" />
 
-        <activity android:name=".activities.AddProductActivity" />
+         <activity android:name=".activities.AddProductActivity" />
 
-        <!-- Google place API key -->
+         <!-- Google place API key -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="R.string.places_api_key" />
 
-        <activity android:name=".activities.ProductDetailsActivity"></activity>
-    </application>
+        <activity android:name=".activities.ProductDetailsActivity" />
 
-</manifest>
+        <activity android:name=".activities.Main2Activity"
+            android:label="@string/title_activity_main2"
+            android:theme="@style/MyMaterialTheme">
+            <!-- <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>-->
+            </activity>
+        </application>
+
+    </manifest>

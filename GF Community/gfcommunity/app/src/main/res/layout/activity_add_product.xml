@@ -22,7 +22,19 @@
             android:layout_width="fill_parent">
         </EditText>
 
-        <!--TODO: Add image here-->
+        <Button
+            android:id="@+id/btnSelectProductImg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select product image" />
+
+        <ImageView
+            android:id="@+id/viewImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/star_on"
+            android:adjustViewBounds="true" />
+
         <TextView
             android:id="@+id/store_details_title"
             android:layout_marginTop="@dimen/margin"
@@ -45,6 +57,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:entries="@array/cities_array"
+            android:hint="@string/city"
             android:prompt="@string/city"/>
         <EditText
             android:id="@+id/store_street_edit_txt"

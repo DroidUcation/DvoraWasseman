@@ -28,6 +28,7 @@ public class SharingInfoDatabaseHelper extends SQLiteOpenHelper {
             + SharingInfoContract.ProductsEntry.COMMENT + " TEXT, "
             + SharingInfoContract.ProductsEntry.PHONE + " TEXT, "
             + SharingInfoContract.ProductsEntry.CREATED_AT + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+            + SharingInfoContract.ProductsEntry.IMAGE_URL + " TEXT, "
             + SharingInfoContract.ProductsEntry.USER_ID + " TEXT"+");";
 
     //TODO: Recipes table create statement
