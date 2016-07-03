@@ -29,10 +29,11 @@
             android:text="Select product image" />
 
         <ImageView
-            android:id="@+id/viewImage"
+            android:id="@+id/product_img"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:src="@android:drawable/star_on"
+            android:scaleType="fitStart"
             android:adjustViewBounds="true" />
 
         <TextView

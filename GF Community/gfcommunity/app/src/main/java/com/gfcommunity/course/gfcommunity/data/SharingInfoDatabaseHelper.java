@@ -13,6 +13,7 @@ public class SharingInfoDatabaseHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1; // Database Version
     // Table Create Statements
+
     //Products table create statement
     private static final String CREATE_TABLE_PRODUCTS =
             "CREATE TABLE IF NOT EXISTS "
@@ -20,7 +21,6 @@ public class SharingInfoDatabaseHelper extends SQLiteOpenHelper {
             + SharingInfoContract.ProductsEntry._ID + " INTEGER PRIMARY KEY, "
             + SharingInfoContract.ProductsEntry.PRODUCT_NAME + " TEXT, "
             + SharingInfoContract.ProductsEntry.STORE_NAME + " TEXT, "
-            + SharingInfoContract.ProductsEntry.IMAGE + " BLOB, "
             + SharingInfoContract.ProductsEntry.STORE_URL + " TEXT, "
             + SharingInfoContract.ProductsEntry.CITY + " TEXT, "
             + SharingInfoContract.ProductsEntry.STREET + " TEXT, "
@@ -28,10 +28,24 @@ public class SharingInfoDatabaseHelper extends SQLiteOpenHelper {
             + SharingInfoContract.ProductsEntry.COMMENT + " TEXT, "
             + SharingInfoContract.ProductsEntry.PHONE + " TEXT, "
             + SharingInfoContract.ProductsEntry.CREATED_AT + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
-            + SharingInfoContract.ProductsEntry.IMAGE_URL + " TEXT, "
+            + SharingInfoContract.ProductsEntry.IMAGE_URI + " TEXT, "
             + SharingInfoContract.ProductsEntry.USER_ID + " TEXT"+");";
 
-    //TODO: Recipes table create statement
+    //Recipes table create statement
+    private static final String CREATE_TABLE_RECIPES =
+            "CREATE TABLE IF NOT EXISTS "
+                    + SharingInfoContract.RecipesEntry.TABLE_NAME + "("
+                    + SharingInfoContract.RecipesEntry._ID + " INTEGER PRIMARY KEY, "
+                    + SharingInfoContract.RecipesEntry.RECIPE_NAME + " TEXT, "
+                    + SharingInfoContract.RecipesEntry.INGREDIENTS + " TEXT, "
+                    + SharingInfoContract.RecipesEntry.INSTRUCTIONS + " TEXT, "
+                    + SharingInfoContract.RecipesEntry.RECIPE_IMAGE_URl + " TEXT, "
+                    + SharingInfoContract.RecipesEntry.PREPARATION_TIME + " TEXT, "
+                    + SharingInfoContract.RecipesEntry.DINERS_NUMBER + " INTEGER, "
+                    + SharingInfoContract.RecipesEntry.DIFFICULTY_PREPARATION + " TEXT, "
+                    + SharingInfoContract.RecipesEntry.RECIPE_STORY + " TEXT, "
+                    + SharingInfoContract.RecipesEntry.CREATED_AT + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                    + SharingInfoContract.RecipesEntry.USER_ID + " TEXT"+");";
 
     public SharingInfoDatabaseHelper(Context context){
         super(context,"SharingInfoDB",null,DATABASE_VERSION);

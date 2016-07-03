@@ -3,20 +3,32 @@
     android:layout_width="fill_parent"
     android:layout_height="@dimen/relative_layout_height_list_row"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:paddingLeft="@dimen/margin"
     android:paddingRight="@dimen/margin"
     android:layout_marginTop="@dimen/relative_layout_margin_list_row"
     android:layout_marginBottom="@dimen/relative_layout_margin_list_row"
     android:background="@drawable/custom_bg">
 
-    <ImageView
+    <!--<ImageView
     android:id="@+id/row_img"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_centerVertical="true"
     android:layout_marginRight="@dimen/margin"
     android:contentDescription="Product image"
-    tools:src="@mipmap/ic_launcher" />
+    tools:src="@mipmap/ic_launcher" />-->
+
+    <com.github.siyamed.shapeimageview.CircularImageView
+        android:id="@+id/row_img"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="@dimen/margin"
+        android:contentDescription="Product image"
+        android:src="@mipmap/ic_launcher"
+        app:siBorderWidth="2dp"
+        app:siBorderColor="@android:color/holo_green_light"/>
 
     <LinearLayout
         android:layout_toRightOf="@id/row_img"

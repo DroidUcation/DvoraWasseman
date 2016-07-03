@@ -15,6 +15,7 @@ import java.util.List;
 import com.gfcommunity.course.gfcommunity.R;
 
 public class MainActivity extends AppCompatActivity {
+    private int fragmentPosition;
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -29,12 +30,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        fragmentPosition = getIntent().getIntExtra("fragmentPosition", 0);
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
+        viewPager.setCurrentItem(fragmentPosition); //select specific fragment
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
@@ -49,9 +53,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(new BlankFragment(), "What's new");
-        adapter.addFrag( ProductsFragment.getInstance(), "Products");
-        adapter.addFrag(new BlankFragment(), "Receipts");
+        adapter.addFrag(new BlankFragment(), getResources().getString(R.string.news_fragment_name));
+        adapter.addFrag( ProductsFragment.getInstance(), getResources().getString(R.string.products_fragment_name));
+        adapter.addFrag(new BlankFragment(), getResources().getString(R.string.receipts_fragment_name));
         viewPager.setAdapter(adapter);
     }
 

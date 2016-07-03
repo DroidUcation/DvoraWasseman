@@ -1,4 +1,4 @@
-package com.gfcommunity.course.gfcommunity.data;
+package com.gfcommunity.course.gfcommunity.data.products;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -12,11 +12,14 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.gfcommunity.course.gfcommunity.data.SharingInfoContract;
+import com.gfcommunity.course.gfcommunity.data.SharingInfoDatabaseHelper;
+
 /**
  * Products ContentProvider
  */
 public class ProductsContentProvider extends ContentProvider {
-    private static final String AUTHORITY = "com.gfcommunity.course.gfcommunity.data.ProductsContentProvider";
+    private static final String AUTHORITY = "com.gfcommunity.course.gfcommunity.data.products.ProductsContentProvider";
     private static final String URL = "content://" + AUTHORITY;
 
     //URIs for products, recipes and tips tables

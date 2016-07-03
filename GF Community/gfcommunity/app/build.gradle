@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         applicationId "com.gfcommunity.course.gfcommunity"
-        minSdkVersion 16
+        minSdkVersion 10
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -29,6 +29,7 @@ dependencies {
     compile 'com.google.firebase:firebase-storage:9.0.2'
     compile 'com.google.firebase:firebase-auth:9.0.2'
     compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.github.siyamed:android-shape-imageview:0.9.+@aar'
 }
 
 apply plugin: 'com.google.gms.google-services'

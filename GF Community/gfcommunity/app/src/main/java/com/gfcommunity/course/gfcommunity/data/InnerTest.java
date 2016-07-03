@@ -6,6 +6,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.text.format.DateFormat;
 
+import com.gfcommunity.course.gfcommunity.data.products.ProductsContentProvider;
+
 public class InnerTest {
     //Insert
     public void testInsertProducts(Context cnx) {

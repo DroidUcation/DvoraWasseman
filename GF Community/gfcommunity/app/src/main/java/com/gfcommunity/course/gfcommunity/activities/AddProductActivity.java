@@ -1,33 +1,38 @@
 package com.gfcommunity.course.gfcommunity.activities;
 
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.NotificationCompat;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 
 import com.gfcommunity.course.gfcommunity.R;
 import com.gfcommunity.course.gfcommunity.data.SharingInfoContract;
 import com.gfcommunity.course.gfcommunity.products.InsertProductLoader;
-import com.gfcommunity.course.gfcommunity.utils.UploadFileUtil;
+import com.gfcommunity.course.gfcommunity.firebase.storage.UploadFile;
+import com.gfcommunity.course.gfcommunity.recyclerView.ProductsAdapter;
+import com.gfcommunity.course.gfcommunity.utils.SpinnerAdapter;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -38,10 +43,10 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.OutputStream;
 
 
-public class AddProductActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Uri>, View.OnClickListener, AdapterView.OnItemSelectedListener, UploadFileUtil.OnuploadCompletedListener {
+
+public class AddProductActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Uri>, View.OnClickListener, AdapterView.OnItemSelectedListener, UploadFile.OnuploadCompletedListener {
     private Button addProductBtn;
     private EditText productNameEditTxt;
     private EditText storeNameEditTxt;
@@ -55,9 +60,9 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
     private String selectedCity;
     private ImageView productImg;
     private Button addProductImgBtn;
-    private OutputStream outFile;
-    private Bitmap bitmap;
-    private String productImgPath;
+    private Uri selectedImage;
+    String productName;
+    String storeName;
 
 
     @Override
@@ -89,7 +94,7 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
         commentEditTxt = (EditText) findViewById(R.id.product_comment_txt);
         addProductImgBtn = (Button)findViewById(R.id.btnSelectProductImg);
         addProductImgBtn.setTransformationMethod(null);  //Ignore automatic upper case
-        productImg = (ImageView)findViewById(R.id.viewImage);
+        productImg = (ImageView)findViewById(R.id.product_img);
 
         //Bind views to Listener
         addProductBtn.setOnClickListener(this);
@@ -99,23 +104,25 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
         addProductImgBtn.setOnClickListener(this);
 
         //Cities spinner
-        citiesSpinner.setPrompt(getResources().getString(R.string.city));
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.cities_array));
+        String[] cityArray = getResources().getStringArray(R.array.cities_array);
+        String[] cityList = new String[(cityArray.length)+1];
+        System.arraycopy(cityArray, 0, cityList, 0, cityArray.length);
+        cityList[cityArray.length] = getResources().getString(R.string.city_spinner_title);
+        citiesSpinner.setPrompt(getResources().getString(R.string.city_spinner_title));
+        SpinnerAdapter dataAdapter = new SpinnerAdapter(this, cityList, android.R.layout.simple_spinner_item);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);// Drop down layout style - list view with radio button
         citiesSpinner.setAdapter(dataAdapter);
+        citiesSpinner.setSelection(dataAdapter.getCount());// show hint
+
     }
 
     @Override
     public Loader<Uri> onCreateLoader(int id, Bundle args) {
-        // Upload product image to firebase storage
-
-
-
-        String downloadUrlPath = args.getString("downloadUrlPath");
+        String downloadUrlPath = args != null ? args.getString("downloadUrlPath") : "";
         ContentValues values = new ContentValues();
-        String productName = productNameEditTxt.getText().toString();
+        productName = productNameEditTxt.getText().toString();
         values.put(SharingInfoContract.ProductsEntry.PRODUCT_NAME, !TextUtils.isEmpty(productName) ? productName : "");
-        String storeName = storeNameEditTxt.getText().toString();
+        storeName = storeNameEditTxt.getText().toString();
         values.put(SharingInfoContract.ProductsEntry.STORE_NAME, !TextUtils.isEmpty(storeName) ? storeName : "");
         String storeUrl = storeUrlEditTxt.getText().toString();
         values.put(SharingInfoContract.ProductsEntry.STORE_URL, !TextUtils.isEmpty(storeUrl) ? storeUrl : "");
@@ -129,20 +136,58 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
         values.put(SharingInfoContract.ProductsEntry.HOUSE_NO, !TextUtils.isEmpty(storeHouseNo) ? storeHouseNo : "");
         String comment = commentEditTxt.getText().toString();
         values.put(SharingInfoContract.ProductsEntry.COMMENT, !TextUtils.isEmpty(comment) ? comment : "");
+        values.put(SharingInfoContract.ProductsEntry.IMAGE_URI, !TextUtils.isEmpty(downloadUrlPath) ? downloadUrlPath : "");
 
-        if(downloadUrlPath != null) {
-//            String imgUrl = downloadUrlPath.getPath();
-            values.put(SharingInfoContract.ProductsEntry.IMAGE_URL, !TextUtils.isEmpty(downloadUrlPath) ? downloadUrlPath : "");
-        }
         return new InsertProductLoader(this, values);
+    }
+
+    /*
+     * Create pending intent for details activity which be opened from notification
+     * @param productUri: relevant product uri to get product details
+     * @return PendingIntent
+     */
+    public PendingIntent createPendingIntent(Uri productUri){
+        //Add notification action
+        Intent productDetailsIntent = new Intent(this, ProductDetailsActivity.class);
+        Cursor cursor = this.getContentResolver().query(productUri, null, null, null, null);
+        if(cursor != null && cursor.moveToFirst()) {
+            productDetailsIntent.putExtra("selected_item", ProductsAdapter.setProductValues(cursor)); //Pass relevant product to ProductDetailsActivity
+        }
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+
+        // Adds the Intent that starts the Activity to the top of the stack
+        stackBuilder.addNextIntentWithParentStack(productDetailsIntent);
+        PendingIntent pi = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);
+        return pi;
+    }
+
+    /**
+     * Send notification about new product
+     */
+    public void sendNotification(Uri productUri){
+        Notification n = new NotificationCompat.Builder(this)
+                .setContentTitle("New Gluten free product")
+                .setContentText(productName +" was added in "+storeName )
+                .setSmallIcon(R.drawable.ic_menu_send) //TODO: put app icon
+                .setDefaults(Notification.DEFAULT_SOUND)
+                .setAutoCancel(true)
+                .setContentIntent(createPendingIntent(productUri))
+                .build();
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(this.NOTIFICATION_SERVICE);
+        notificationManager.notify(1, n);
     }
 
     @Override
     public void onLoadFinished(Loader<Uri> loader, Uri data) {
         Log.i(logTag, "Insert product succssed: "+ productNameEditTxt.getText().toString());
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("fragmentPosition", 1);
         startActivity(intent);
         Toast.makeText(this,"Product is inserted successfully",Toast.LENGTH_SHORT).show();//TODO: Show inserted successfully popup
+        //TODO: check if user city is same as product city
+        sendNotification(data); //Send notification
     }
 
     @Override
@@ -155,8 +200,11 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
         switch(view.getId()){
             case R.id.add_product_btn: //Start Add new product activity
                 if(isValidatedForm()) { //Validate inputs
-//                    getSupportLoaderManager().initLoader(loaderID, null, this).forceLoad();//Initializes the Insert Loader
-                    UploadFileUtil.uploadFile(this, productImgPath,this);
+                    if(selectedImage != null) {
+                        UploadFile.uploadFile(this, selectedImage, this); //Upload product image to firebase
+                    } else {
+                        getSupportLoaderManager().initLoader(loaderID, null, this).forceLoad();//Initializes the Insert Loader
+                    }
                 }
                 break;
             case R.id.btnSelectProductImg:
@@ -180,7 +228,7 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
      */
     private void selectImage() {
         Uri selectedImage;
-        final CharSequence[] options = { "Take Photo", "Choose from Gallery","Cancel" };
+        final CharSequence[] options = { getResources().getString(R.string.take_photo_option),getResources().getString(R.string.gallery_option),getResources().getString(R.string.cancel_option)};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Add product image");
         builder.setItems(options, new DialogInterface.OnClickListener() {
@@ -188,19 +236,19 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
             @Override
             public void onClick(DialogInterface dialog, int item) {
 
-                if (options[item].equals("Take Photo")) {
+                if (options[item].equals(getResources().getString(R.string.take_photo_option))) {
                     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     File f = new File(android.os.Environment.getExternalStorageDirectory(), "product.jpg");
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
                     startActivityForResult(intent, 1);
                 }
 
-                else if (options[item].equals("Choose from Gallery")) {
+                else if (options[item].equals(getResources().getString(R.string.gallery_option))) {
                     Intent intent = new   Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     startActivityForResult(intent, 2);
                 }
 
-                else if (options[item].equals("Cancel")) {
+                else if (options[item].equals(getResources().getString(R.string.cancel_option))) {
                     dialog.dismiss();
                 }
 
@@ -215,7 +263,7 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
     @Override
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Uri selectedImage = null;
+        selectedImage = null;
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == 1) {
@@ -226,39 +274,27 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
                         break;
                     }
                 }
-                productImgPath = f.getAbsolutePath();
+                selectedImage = Uri.fromFile(f);
 
             } else if (requestCode == 2) {
                  selectedImage = data.getData();
-                String[] filePath = {MediaStore.Images.Media.DATA };
-                Cursor c = getContentResolver().query(selectedImage,filePath, null, null, null);
-                c.moveToFirst();
-                int columnIndex = c.getColumnIndex(filePath[0]);
-                productImgPath = c.getString(columnIndex);
-                c.close();
-                Log.w(logTag, productImgPath);
             }
 
-            if(!TextUtils.isEmpty(productImgPath)){
+            if(!TextUtils.isEmpty(selectedImage.toString())){
 
                 Picasso.with(this)
                         .load(selectedImage)
-                        .resize(productImg.getHeight(),productImg.getWidth())
-                        .placeholder(R.drawable.filter) //TODO: put product icon
+                        .placeholder(R.drawable.common_full_open_on_phone) //TODO: put loading icon
                         .error(R.drawable.filter) //TODO: put product icon
-//                        .error(R.drawable.filter) //TODO: put product icon
-//                        .fit()
-                       .centerCrop()
-
                         .into(productImg, new Callback() {
                             @Override
                             public void onSuccess() {
-                                Log.d("Picasso", "success");
+                                Log.d("Picasso", "set product image was succeeded");
                             }
 
                             @Override
                             public void onError() {
-                                Log.d("Picasso", "onError");
+                                Log.d("Picasso", "set product image was failed");
 
                             }
                         });
@@ -275,11 +311,26 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
      */
     private boolean isValidatedForm() {
         boolean isValid = false;
-        boolean isProductNameFilled = validateRequiredText(productNameEditTxt);
-        boolean isStoreNameFilled = validateRequiredText(storeNameEditTxt);
+        boolean isProductNameFilled = validateRequiredText(productNameEditTxt); //validate product name
+        boolean isStoreNameFilled = validateRequiredText(storeNameEditTxt); //validate store name
         boolean isStroreAddressOrStoreUrlFilled = validateRequiredAddressOrUrl(storeUrlEditTxt, storeStreetEditTxt, storeHouseNoEditTxt); //Validate store address or store url (one of them is required)
-        if(isProductNameFilled && isStoreNameFilled && isStroreAddressOrStoreUrlFilled) {
+
+        //validate store phone
+        Editable storePhoneNumber = storePhoneEditTxt.getText();
+        boolean isStorePhoneValid = true;
+        if(storePhoneNumber != null && !TextUtils.isEmpty(storePhoneNumber.toString())) {
+            isStorePhoneValid = isValidMobile(storePhoneEditTxt, storePhoneNumber.toString().trim());
+        }
+
+        //validate store web url
+        Editable storeUrl = storeUrlEditTxt.getText();
+        boolean isStoreUrlValid = true;
+        if(storeUrl != null && !TextUtils.isEmpty(storeUrl.toString())) {
+            isStoreUrlValid = isValidWebUrl(storeUrlEditTxt, storeUrl.toString().trim());
+        }
+        if(isProductNameFilled && isStoreNameFilled && isStroreAddressOrStoreUrlFilled && isStorePhoneValid && isStoreUrlValid) {
             isValid = true;
+            cleanErrorMsg(); //Clean all error messages
         }
         return isValid;
     }
@@ -306,17 +357,61 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
             case R.id.store_url_edit_txt:
                 errMessage = (String.format(getResources().getString(R.string.required_err_msg),getString(R.string.store_url)));
                 break;
+            case R.id.store_phone_edit_txt:
+                errMessage = getResources().getString(R.string.not_valid_number_msg);
+                break;
         }
         view.setError(errMessage);
         requestFocus(view);
     }
 
+    /**
+     * Validate required text
+     * @param editTextView
+     * @return isValid
+     */
     private boolean validateRequiredText(EditText editTextView) {
         if (TextUtils.isEmpty(editTextView.getText().toString().trim())) {
             setErrorMsg(editTextView);
             return false;
         }
         return true;
+    }
+
+    /**
+     * Validate phone
+     * @param phone
+     * @return isValid
+     */
+    private boolean isValidMobile(EditText editTextView, String phone) {
+        boolean isValid = Patterns.PHONE.matcher(phone).matches();
+        if(!isValid) {
+            setErrorMsg(editTextView);
+        }
+        return isValid;
+    }
+
+    /**
+     * Validate web url
+     * @param webUrl
+     * @return isValid
+     */
+    private boolean isValidWebUrl(EditText editTextView, String webUrl) {
+        boolean isValid = Patterns.WEB_URL.matcher(webUrl).matches();
+        if(!isValid) {
+            editTextView.setError(getResources().getString(R.string.not_valid_url_msg));
+            requestFocus(editTextView);
+        }
+        return isValid;
+    }
+
+    private void cleanErrorMsg(){
+        productNameEditTxt.setError(null);
+        storeNameEditTxt.setError(null);
+        storeUrlEditTxt.setError(null);
+        storeStreetEditTxt.setError(null);
+        storeHouseNoEditTxt.setError(null);
+        storePhoneEditTxt.setError(null);
     }
 
     /**
@@ -365,8 +460,6 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
         Bundle bundle= new Bundle();
         bundle.putString("downloadUrlPath",uri.toString());
         getSupportLoaderManager().initLoader(loaderID,bundle , this).forceLoad();//Initializes the Insert Loader
-
-
     }
 
     private class MyTextWatcher implements TextWatcher {

@@ -5,7 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.v4.content.AsyncTaskLoader;
 
-import com.gfcommunity.course.gfcommunity.data.ProductsContentProvider;
+import com.gfcommunity.course.gfcommunity.data.products.ProductsContentProvider;
 
 /**
  * Insert product by asyncTaskLoader

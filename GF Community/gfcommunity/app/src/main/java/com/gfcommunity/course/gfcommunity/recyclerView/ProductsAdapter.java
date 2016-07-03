@@ -5,27 +5,28 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-
-import com.gfcommunity.course.gfcommunity.activities.ProductsFragment;
-import com.gfcommunity.course.gfcommunity.data.ProductsContentProvider;
-import com.gfcommunity.course.gfcommunity.model.Product;
-import com.gfcommunity.course.gfcommunity.R;
-import com.gfcommunity.course.gfcommunity.activities.ProductDetailsActivity;
-import com.gfcommunity.course.gfcommunity.data.SharingInfoContract;
-
-import java.sql.Timestamp;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.TextView;
 
+import com.gfcommunity.course.gfcommunity.R;
+import com.gfcommunity.course.gfcommunity.activities.ProductDetailsActivity;
+import com.gfcommunity.course.gfcommunity.data.products.ProductsContentProvider;
+import com.gfcommunity.course.gfcommunity.data.SharingInfoContract;
+import com.gfcommunity.course.gfcommunity.model.Product;
+import com.github.siyamed.shapeimageview.CircularImageView;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
+
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * Provide views to RecyclerView with data from productList.
@@ -34,6 +35,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
     static Cursor cursor;
     static Context context;
     private List<Product> mProducts;
+    private String picassoLogTag = "Picasso productsAdapter";
 
     @Override
     public Filter getFilter() {
@@ -61,7 +63,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
     private ArrayList<Product> getFilteredList(CharSequence constraint) {
 
         String query = constraint.toString().toLowerCase();
-        String selection = SharingInfoContract.ProductsEntry.CITY + " LIKE '" + query +"'";
+        String selection = SharingInfoContract.ProductsEntry.PRODUCT_NAME + " LIKE '" + query +"'";
 
         Cursor cursor = context.getContentResolver().query(ProductsContentProvider.PRODUCTS_CONTENT_URI, null, selection, null, null);
 
@@ -70,7 +72,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 do {
-                    productsList.add(setProductValues());
+                    productsList.add(setProductValues(cursor));
                 } while (cursor.moveToNext());
             }
             cursor.close();
@@ -80,7 +82,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private TextView title, subTitle, text;
-        private ImageView productImg;
+        private CircularImageView productImg;
         private static SparseArray<Product> productsMap = new SparseArray<Product>();//Products map mapped by product ID
 
         public ViewHolder(View view) {
@@ -88,7 +90,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
             title = (TextView) view.findViewById(R.id.row_title);
             subTitle = (TextView) view.findViewById(R.id.row_subtitle);
             text = (TextView) view.findViewById(R.id.row_text);
-            productImg = (ImageView) view.findViewById(R.id.row_img);
+            productImg = (CircularImageView) view.findViewById(R.id.row_img);
             view.setOnClickListener(this);
         }
 
@@ -105,7 +107,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
             Product product = productsMap.get(productID);
             //Set the product only if it's the first clicking (the product is not initialized to map)
             if(product == null){
-                product = setProductValues();
+                product = setProductValues(cursor);
                 productsMap.put(productID, product );
             }
 
@@ -115,28 +117,32 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
         }
     }
 
-    public static Product setProductValues(){
+    public static Product setProductValues(Cursor cursor){
         Product product = new Product();
-        product.setProductName(cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.PRODUCT_NAME)));
-        //TODO: set image
-        product.setStoreName(cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.STORE_NAME)));
+        if(cursor != null) {
+            product.setProductName(cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.PRODUCT_NAME)));
+            product.setImgUrl(cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.IMAGE_URI)));
+            product.setStoreName(cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.STORE_NAME)));
 
-        int houseNo = cursor.getInt(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.HOUSE_NO));
-        String street = cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.STREET));
-        String city = cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.CITY));
-        if(houseNo > 0 && TextUtils.isEmpty(street) && TextUtils.isEmpty(city)) {
-            //Build and set address
-            product.setAddress(String.format(context.getResources().getString(R.string.address),
-                    cursor.getInt(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.HOUSE_NO)),
-                    cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.STREET)),
-                    cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.CITY))));
+            int houseNo = cursor.getInt(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.HOUSE_NO));
+            String street = cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.STREET));
+            String city = cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.CITY));
+            if (houseNo > 0 && !TextUtils.isEmpty(street) && !TextUtils.isEmpty(city)) {
+                //Build and set address
+                product.setAddress(String.format(context.getResources().getString(R.string.address),
+                        cursor.getInt(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.HOUSE_NO)),
+                        cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.STREET)),
+                        cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.CITY))));
+            }
+
+            product.setStoreUrl(cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.STORE_URL)));
+            product.setPhone(cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.PHONE)));
+            product.setComment(cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.COMMENT)));
+            product.setUserID(cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.USER_ID)));
+            product.setCreatedAt(Timestamp.valueOf(cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.CREATED_AT))));
+        } else {
+            Log.e(ProductsAdapter.class.getName(), "Failed to set product details");
         }
-
-        product.setStoreUrl(cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.STORE_URL)));
-        product.setPhone(cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.PHONE)));
-        product.setComment(cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.COMMENT)));
-        product.setUserID(cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.USER_ID)));
-        product.setCreatedAt(Timestamp.valueOf(cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.CREATED_AT))));
         return product;
     }
     public ProductsAdapter(Context context, Cursor cursor) {
@@ -163,7 +169,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
         int houseNo = cursor.getInt(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.HOUSE_NO));
         String street = cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.STREET));
         String city = cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.CITY));
-        if(houseNo > 0 && TextUtils.isEmpty(street) && TextUtils.isEmpty(city)) {
+        if(houseNo > 0 && !TextUtils.isEmpty(street) && !TextUtils.isEmpty(city)) {
             //Build address string
             text = String.format(context.getResources().getString(R.string.address),
                     cursor.getInt(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.HOUSE_NO)),
@@ -173,7 +179,29 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
             text = storeUrl;
         }
         holder.text.setText(text);
-        holder.productImg.setImageResource(R.mipmap.ic_launcher); //TODO: Get product image
+
+        //Set product image by picasso
+        String productImgPath = cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.IMAGE_URI));
+        //String productImgPath = "https://firebasestorage.googleapis.com/v0/b/gf-community.appspot.com/o/images%2Fproduct_img146697445826120160610_141506.jpg?alt=media&token=5130c587-38af-4e03-a401-cfea8afc08dc";
+        if(!TextUtils.isEmpty(productImgPath)) {
+            Picasso.with(context)
+                    .load(productImgPath)
+                    .placeholder(R.drawable.common_full_open_on_phone) //TODO: put loading icon
+                    .error(R.drawable.filter) //TODO: put product icon
+                    .into( holder.productImg, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.d(picassoLogTag, "set product image was succeeded");
+                        }
+
+                        @Override
+                        public void onError() {
+                            Log.d(picassoLogTag, "set product image was failed");
+
+                        }
+                    });
+        }
+
     }
 
     @Override

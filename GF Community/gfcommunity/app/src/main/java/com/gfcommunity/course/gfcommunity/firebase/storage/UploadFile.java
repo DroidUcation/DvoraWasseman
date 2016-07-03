@@ -1,4 +1,4 @@
-package com.gfcommunity.course.gfcommunity.utils;
+package com.gfcommunity.course.gfcommunity.firebase.storage;
 import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -16,24 +16,22 @@ import java.io.File;
 /**
  * Upload file to firebase storage
  */
-public class UploadFileUtil {
-    private static String logTag = UploadFileUtil.class.getName();
+public class UploadFile {
+    private static String logTag = UploadFile.class.getName();
 
 
     public interface OnuploadCompletedListener{
         void onUrlReceived(Uri uri);
     }
 
-    public static void uploadFile(Context context, String urlPath , final OnuploadCompletedListener listener){
-        //final Uri downloadUrlPath;
-        Uri file = Uri.fromFile(new File(urlPath));
+    public static void uploadFile(Context context, Uri fileUri , final OnuploadCompletedListener listener){
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReferenceFromUrl("gs://" + context.getString(R.string.google_storage_bucket));
 
         // Create a child refere''nce imagesRef now points to "images"
         StorageReference imagesRef = storageRef.child("images");
-        StorageReference productRef = storageRef.child("images/"+"product_img"+String.valueOf(System.currentTimeMillis())+file.getLastPathSegment());
-        UploadTask uploadTask = productRef.putFile(file);
+        StorageReference productRef = storageRef.child("images/"+"product_img"+String.valueOf(System.currentTimeMillis())+fileUri.getLastPathSegment());
+        UploadTask uploadTask = productRef.putFile(fileUri);
 
         // Register observers to listen for when the download is done or if it fails
         uploadTask.addOnFailureListener(new OnFailureListener() {

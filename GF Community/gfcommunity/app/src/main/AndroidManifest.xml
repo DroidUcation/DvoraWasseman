@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -26,8 +27,8 @@
          </activity>
 
          <provider
-             android:name=".data.ProductsContentProvider"
-             android:authorities="com.gfcommunity.course.gfcommunity.data.ProductsContentProvider"
+             android:name=".data.products.ProductsContentProvider"
+             android:authorities="com.gfcommunity.course.gfcommunity.data.products.ProductsContentProvider"
              android:exported="false" />
 
          <activity android:name=".activities.AddProductActivity" />
@@ -37,7 +38,13 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="R.string.places_api_key" />
 
-        <activity android:name=".activities.ProductDetailsActivity" />
+        <activity
+            android:name=".activities.ProductDetailsActivity"
+            android:parentActivityName=".activities.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity"/>
+        </activity>
 
         <activity android:name=".activities.Main2Activity"
             android:label="@string/title_activity_main2"

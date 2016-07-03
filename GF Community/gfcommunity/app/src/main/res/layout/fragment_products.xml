@@ -3,30 +3,53 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <Spinner
-        android:spinnerMode="dropdown"
-        android:id="@+id/citiesSpinner"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:entries="@array/cities_array"
-        android:visibility="gone"
-        android:layout_marginBottom="8dp"
-        android:prompt="@string/city"/>
-    <!--<RelativeLayout
+
+    <RelativeLayout
         android:id="@+id/filter_relative_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp">
+        android:layout_marginBottom="8dp"
+       >
     <ImageView
         android:id="@+id/filter_city"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="true"
         android:src="@drawable/filter"
+        android:layout_alignParentRight="true"
         android:visibility="visible"/>
         />
 
-    </RelativeLayout>-->
+        <Spinner
+            android:spinnerMode="dropdown"
+            android:id="@+id/citiesSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:entries="@array/cities_array"
+            android:visibility="gone"
+            android:layout_alignRight="@id/filter_city"
+            android:layout_marginBottom="8dp"
+            android:prompt="@string/city"/>
+        <TextView
+            android:id="@+id/filtered_by_textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_alignRight="@id/filter_city"/>
+        <ImageView
+            android:id="@+id/cancel_filter_imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:src="@drawable/cancel"
+            android:visibility="gone"
+            android:layout_alignRight="@id/filtered_by_textView"/>
+
+        />
+
+
+
+    </RelativeLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/products_recycler_view"
@@ -34,7 +57,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
-        android:layout_below="@id/citiesSpinner"
+        android:layout_below="@id/filter_relative_layout"
      />
 
     <!-- Empty view which will be shown when the RecyclerView is empty -->

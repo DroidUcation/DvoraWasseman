@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.util.Linkify;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -14,6 +15,8 @@ import android.widget.TextView;
 import com.gfcommunity.course.gfcommunity.model.Product;
 import com.gfcommunity.course.gfcommunity.R;
 import com.gfcommunity.course.gfcommunity.utils.DateFormatUtil;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 
 public class ProductDetailsActivity extends AppCompatActivity implements View.OnClickListener {
     private Product product;
@@ -40,7 +43,27 @@ public class ProductDetailsActivity extends AppCompatActivity implements View.On
         String productName = product.getProductName();
         productNameTxt.setText(!TextUtils.isEmpty(productName) ? productName : "");
 
-        //TODO: set image
+        ImageView productImg = (ImageView) findViewById(R.id.product_img);
+        String imgUri = product.getImgUrl();
+        if(!TextUtils.isEmpty(imgUri)){
+            Picasso.with(this)
+                    //.load("http://apod.nasa.gov/apod/image/1606/Omega_Crete_200mm_50schedler.jpg")
+                    .load(imgUri)
+                    .placeholder(R.xml.progress) //TODO: put loading icon
+                    .error(R.drawable.filter) //TODO: put product icon
+                    .into(productImg, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.d("Picasso", "success");
+                        }
+
+                        @Override
+                        public void onError() {
+                            Log.d("Picasso", "onError");
+
+                        }
+                    });
+        }
 
         TextView storeNameTxt = (TextView) findViewById(R.id.store_name_txt);
         String storeName = product.getStoreName();
