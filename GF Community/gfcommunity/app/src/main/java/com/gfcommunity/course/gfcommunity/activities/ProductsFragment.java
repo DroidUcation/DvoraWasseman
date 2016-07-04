@@ -44,6 +44,7 @@ public class ProductsFragment extends Fragment implements LoaderManager.LoaderCa
     private  ImageView filterCity;
     private TextView filtered_by_textView;
     private ImageView cancelFilterImageView;
+    private SpinnerAdapter dataAdapter;
     private int check=0;
 
 
@@ -88,7 +89,7 @@ public class ProductsFragment extends Fragment implements LoaderManager.LoaderCa
         System.arraycopy(cityArray, 0, cityList, 0, cityArray.length);
         cityList[cityArray.length] = getResources().getString(R.string.city_spinner_title);
         citiesSpinner.setPrompt(getResources().getString(R.string.city_spinner_title));
-        SpinnerAdapter dataAdapter = new SpinnerAdapter(context, cityList, android.R.layout.simple_spinner_item);
+        dataAdapter = new SpinnerAdapter(context, cityList, android.R.layout.simple_spinner_item);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);// Drop down layout style - list view with radio button
         citiesSpinner.setAdapter(dataAdapter);
         citiesSpinner.setSelection(dataAdapter.getCount());// show hint
@@ -154,6 +155,8 @@ public class ProductsFragment extends Fragment implements LoaderManager.LoaderCa
                 break;
             case R.id.filter_city:
                 citiesSpinner.setVisibility(View.VISIBLE);
+                check=0;
+                citiesSpinner.setSelection(dataAdapter.getCount());// show hint
                 filterCity.setVisibility(View.GONE);
                 break;
 
