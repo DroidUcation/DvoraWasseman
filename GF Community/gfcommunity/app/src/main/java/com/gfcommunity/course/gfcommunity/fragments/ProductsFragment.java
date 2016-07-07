@@ -1,4 +1,4 @@
-package com.gfcommunity.course.gfcommunity.activities;
+package com.gfcommunity.course.gfcommunity.fragments;
 
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -24,10 +23,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gfcommunity.course.gfcommunity.R;
+import com.gfcommunity.course.gfcommunity.activities.products.AddProductActivity;
 import com.gfcommunity.course.gfcommunity.data.products.ProductsContentProvider;
 import com.gfcommunity.course.gfcommunity.data.SharingInfoContract;
 import com.gfcommunity.course.gfcommunity.recyclerView.DividerItemDecoration;
-import com.gfcommunity.course.gfcommunity.recyclerView.ProductsAdapter;
+import com.gfcommunity.course.gfcommunity.recyclerView.products.ProductsAdapter;
 import com.gfcommunity.course.gfcommunity.utils.NetworkConnectedUtil;
 import com.gfcommunity.course.gfcommunity.utils.SpinnerAdapter;
 
@@ -44,8 +44,7 @@ public class ProductsFragment extends Fragment implements LoaderManager.LoaderCa
     private  ImageView filterCity;
     private TextView filtered_by_textView;
     private ImageView cancelFilterImageView;
-    private SpinnerAdapter dataAdapter;
-    private int check=0;
+    private int check = 0;
 
 
     @Override
@@ -89,7 +88,7 @@ public class ProductsFragment extends Fragment implements LoaderManager.LoaderCa
         System.arraycopy(cityArray, 0, cityList, 0, cityArray.length);
         cityList[cityArray.length] = getResources().getString(R.string.city_spinner_title);
         citiesSpinner.setPrompt(getResources().getString(R.string.city_spinner_title));
-        dataAdapter = new SpinnerAdapter(context, cityList, android.R.layout.simple_spinner_item);
+        SpinnerAdapter dataAdapter = new SpinnerAdapter(context, cityList, android.R.layout.simple_spinner_item);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);// Drop down layout style - list view with radio button
         citiesSpinner.setAdapter(dataAdapter);
         citiesSpinner.setSelection(dataAdapter.getCount());// show hint
@@ -155,8 +154,6 @@ public class ProductsFragment extends Fragment implements LoaderManager.LoaderCa
                 break;
             case R.id.filter_city:
                 citiesSpinner.setVisibility(View.VISIBLE);
-                check=0;
-                citiesSpinner.setSelection(dataAdapter.getCount());// show hint
                 filterCity.setVisibility(View.GONE);
                 break;
 
@@ -180,7 +177,7 @@ public class ProductsFragment extends Fragment implements LoaderManager.LoaderCa
         selectedCity = parent.getItemAtPosition(position).toString();
        if(check++>0){
            filtered_by_textView.setVisibility(View.VISIBLE);
-           filtered_by_textView.setText("Filtered By "+selectedCity);
+           filtered_by_textView.setText(getString(R.string.filtered_by)+ " "+ selectedCity);
            citiesSpinner.setVisibility(View.GONE);
            cancelFilterImageView.setVisibility(View.VISIBLE);
            Bundle b = new Bundle();

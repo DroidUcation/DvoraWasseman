@@ -9,25 +9,25 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-       >
-    <ImageView
-        android:id="@+id/filter_city"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:src="@drawable/filter"
-        android:layout_alignParentRight="true"
-        android:visibility="visible"/>
+        >
+        <ImageView
+            android:id="@+id/filter_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:src="@drawable/filter"
+            android:layout_alignParentRight="true"
+            android:visibility="visible"/>
         />
 
         <Spinner
             android:spinnerMode="dropdown"
-            android:id="@+id/citiesSpinner"
+            android:id="@+id/recipe_categories_spinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:entries="@array/cities_array"
+            android:entries="@array/recipe_categories_array"
             android:visibility="gone"
-            android:layout_alignRight="@id/filter_city"
+            android:layout_alignRight="@id/filter_category"
             android:layout_marginBottom="8dp"
             android:prompt="@string/city"/>
         <TextView
@@ -35,7 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            android:layout_alignRight="@id/filter_city"/>
+            android:layout_alignRight="@id/filter_category"/>
         <ImageView
             android:id="@+id/cancel_filter_imageView"
             android:layout_width="wrap_content"
@@ -52,24 +52,24 @@
     </RelativeLayout>
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/products_recycler_view"
+        android:id="@+id/recipes_recycler_view"
         android:scrollbars="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
         android:layout_below="@id/filter_relative_layout"
-     />
+        />
 
     <!-- Empty view which will be shown when the RecyclerView is empty -->
     <ImageView
-    android:id="@+id/no_results_img"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_centerInParent="true"
-    android:visibility="gone"
-    android:text="@string/no_records"
-    android:contentDescription="@string/no_records"
-    android:src="@drawable/no_records" />
+        android:id="@+id/no_results_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        android:text="@string/no_records"
+        android:contentDescription="@string/no_records"
+        android:src="@drawable/no_records" />
 
     <!-- ProgressBar which will be shown when data is loading-->
     <ProgressBar
@@ -92,3 +92,4 @@
         android:layout_marginRight="@dimen/margin"
         />
 </RelativeLayout>
+

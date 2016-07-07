@@ -4,11 +4,12 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import com.gfcommunity.course.gfcommunity.activities.ProductsFragment;
+import com.gfcommunity.course.gfcommunity.fragments.ProductsFragment;
 
 /**
  * Divider for each list row
@@ -26,7 +27,8 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration{
 
     private int mOrientation;
 
-    public DividerItemDecoration(ProductsFragment context, int orientation) {
+
+    public DividerItemDecoration(Fragment context, int orientation) {
         final TypedArray a = context.getActivity().obtainStyledAttributes(ATTRS);
         mDivider = a.getDrawable(0);
         a.recycle();

@@ -1,4 +1,4 @@
-package com.gfcommunity.course.gfcommunity.activities;
+package com.gfcommunity.course.gfcommunity.activities.products;
 
 import android.app.AlertDialog;
 import android.app.Notification;
@@ -9,45 +9,43 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
-
-import com.gfcommunity.course.gfcommunity.R;
-import com.gfcommunity.course.gfcommunity.data.SharingInfoContract;
-import com.gfcommunity.course.gfcommunity.products.InsertProductLoader;
-import com.gfcommunity.course.gfcommunity.firebase.storage.UploadFile;
-import com.gfcommunity.course.gfcommunity.recyclerView.ProductsAdapter;
-import com.gfcommunity.course.gfcommunity.utils.SpinnerAdapter;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
-
-import android.net.Uri;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.gfcommunity.course.gfcommunity.R;
+import com.gfcommunity.course.gfcommunity.data.SharingInfoContract;
+import com.gfcommunity.course.gfcommunity.firebase.storage.UploadFile;
+import com.gfcommunity.course.gfcommunity.loaders.InsertProductLoader;
+import com.gfcommunity.course.gfcommunity.recyclerView.products.ProductsAdapter;
+import com.gfcommunity.course.gfcommunity.utils.DateFormatUtil;
+import com.gfcommunity.course.gfcommunity.utils.SpinnerAdapter;
+
 import java.io.File;
 
 
-
-public class AddProductActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Uri>, View.OnClickListener, AdapterView.OnItemSelectedListener, UploadFile.OnuploadCompletedListener {
-    private Button addProductBtn;
+public class EditProductActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Uri>, View.OnClickListener, AdapterView.OnItemSelectedListener, UploadFile.OnuploadCompletedListener {
+    private Button saveProductBtn;
     private EditText productNameEditTxt;
     private EditText storeNameEditTxt;
     private EditText storeUrlEditTxt;
@@ -55,14 +53,14 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
     private EditText commentEditTxt;
     private EditText storeStreetEditTxt;
     private EditText storeHouseNoEditTxt;
-    private int loaderID = 0;
-    private String logTag = AddProductActivity.class.getName();
+    private int loaderID = 0;//Insert products loader ID
+    private String logTag = EditProductActivity.class.getName();
     private String selectedCity;
     private ImageView productImg;
     private Button addProductImgBtn;
     private Uri selectedImage;
-    String productName;
-    String storeName;
+    private String productName;
+    private String storeName;
 
 
     @Override
@@ -82,8 +80,8 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
         autocompleteAddressView.setAdapter(new PlacesAutoCompleteAdapter(this , R.layout.autocomplete_list_item));*/
 
         //Define views
-        addProductBtn  = (Button) findViewById(R.id.add_product_btn);
-        addProductBtn.setTransformationMethod(null);  //Ignore automatic upper case
+        saveProductBtn  = (Button) findViewById(R.id.add_product_btn);
+        saveProductBtn.setTransformationMethod(null);  //Ignore automatic upper case
         productNameEditTxt  = (EditText) findViewById(R.id.product_name_edit_text);
         storeNameEditTxt  = (EditText) findViewById(R.id.store_edit_txt);
         storeUrlEditTxt  = (EditText) findViewById(R.id.store_url_edit_txt);
@@ -97,10 +95,10 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
         productImg = (ImageView)findViewById(R.id.product_img);
 
         //Bind views to Listener
-        addProductBtn.setOnClickListener(this);
+        saveProductBtn.setOnClickListener(this);
         citiesSpinner.setOnItemSelectedListener(this);
-        productNameEditTxt.addTextChangedListener(new MyTextWatcher(productNameEditTxt));
-        storeNameEditTxt.addTextChangedListener(new MyTextWatcher(storeNameEditTxt));
+        productNameEditTxt.addTextChangedListener(new ProductTextWatcher(productNameEditTxt));
+        storeNameEditTxt.addTextChangedListener(new ProductTextWatcher(storeNameEditTxt));
         addProductImgBtn.setOnClickListener(this);
 
         //Cities spinner
@@ -126,10 +124,10 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
         values.put(SharingInfoContract.ProductsEntry.STORE_NAME, !TextUtils.isEmpty(storeName) ? storeName : "");
         String storeUrl = storeUrlEditTxt.getText().toString();
         values.put(SharingInfoContract.ProductsEntry.STORE_URL, !TextUtils.isEmpty(storeUrl) ? storeUrl : "");
-        values.put(SharingInfoContract.ProductsEntry.CREATED_AT, DateFormat.format("yyyy-MM-dd hh:mm:ss", new java.util.Date()).toString());
+        values.put(SharingInfoContract.ProductsEntry.CREATED_AT, DateFormatUtil.DATE_FORMAT_DDMMYYYY.format(new java.util.Date()).toString());
         String storePhone = storePhoneEditTxt.getText().toString();
         values.put(SharingInfoContract.ProductsEntry.PHONE, !TextUtils.isEmpty(storePhone) ? storePhone : "");
-        values.put(SharingInfoContract.ProductsEntry.CITY, selectedCity);
+        values.put(SharingInfoContract.ProductsEntry.CITY, !(selectedCity.equals(getString(R.string.city_spinner_title))) ? selectedCity : "");
         String storeStreet = storeStreetEditTxt.getText().toString();
         values.put(SharingInfoContract.ProductsEntry.STREET, !TextUtils.isEmpty(storeStreet) ? storeStreet : "");
         String storeHouseNo = storeHouseNoEditTxt.getText().toString();
@@ -161,33 +159,31 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
         return pi;
     }
 
-    /**
-     * Send notification about new product
-     */
-    public void sendNotification(Uri productUri){
-        Notification n = new NotificationCompat.Builder(this)
-                .setContentTitle("New Gluten free product")
-                .setContentText(productName +" was added in "+storeName )
-                .setSmallIcon(R.drawable.ic_menu_send) //TODO: put app icon
-                .setDefaults(Notification.DEFAULT_SOUND)
-                .setAutoCancel(true)
-                .setContentIntent(createPendingIntent(productUri))
-                .build();
-
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(this.NOTIFICATION_SERVICE);
-        notificationManager.notify(1, n);
-    }
+//    /**
+//     * Send notification about new product
+//     */
+//    public void sendNotification(Uri productUri){
+//        Notification n = new NotificationCompat.Builder(this)
+//                .setContentTitle(getString(R.string.product_notification_title))
+//                .setContentText(String.format(getString(R.string.product_notification_text),productName,storeName ))
+//                .setSmallIcon(R.drawable.ic_menu_send) //TODO: put app icon
+//                .setDefaults(Notification.DEFAULT_SOUND)
+//                .setAutoCancel(true)
+//                .setContentIntent(createPendingIntent(productUri))
+//                .build();
+//
+//        NotificationManager notificationManager =
+//                (NotificationManager) getSystemService(this.NOTIFICATION_SERVICE);
+//        notificationManager.notify(1, n);
+//    }
 
     @Override
     public void onLoadFinished(Loader<Uri> loader, Uri data) {
-        Log.i(logTag, "Insert product succssed: "+ productNameEditTxt.getText().toString());
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("fragmentPosition", 1);
-        startActivity(intent);
-        Toast.makeText(this,"Product is inserted successfully",Toast.LENGTH_SHORT).show();//TODO: Show inserted successfully popup
+        Log.i(logTag, "Insert product succssed: "+ productName);
+        Toast.makeText(this,String.format(getString(R.string.product_saved_msg), productName),Toast.LENGTH_SHORT).show();//TODO: Show inserted successfully popup
         //TODO: check if user city is same as product city
-        sendNotification(data); //Send notification
+//        sendNotification(data); //Send notification
+        finish(); //Close this activity and go back to Main Activity
     }
 
     @Override
@@ -198,10 +194,10 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
     @Override
     public void onClick(View view) {
         switch(view.getId()){
-            case R.id.add_product_btn: //Start Add new product activity
+            case R.id.save_product_btn: //Start edit product activity
                 if(isValidatedForm()) { //Validate inputs
                     if(selectedImage != null) {
-                        UploadFile.uploadFile(this, selectedImage, this); //Upload product image to firebase
+                        UploadFile.uploadFile(this, selectedImage, this, "product"); //Upload product image to firebase
                     } else {
                         getSupportLoaderManager().initLoader(loaderID, null, this).forceLoad();//Initializes the Insert Loader
                     }
@@ -230,7 +226,7 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
         Uri selectedImage;
         final CharSequence[] options = { getResources().getString(R.string.take_photo_option),getResources().getString(R.string.gallery_option),getResources().getString(R.string.cancel_option)};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Add product image");
+        builder.setTitle(getString(R.string.add_product_image_title));
         builder.setItems(options, new DialogInterface.OnClickListener() {
 
             @Override
@@ -238,13 +234,13 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
 
                 if (options[item].equals(getResources().getString(R.string.take_photo_option))) {
                     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    File f = new File(android.os.Environment.getExternalStorageDirectory(), "product.jpg");
+                    File f = new File(Environment.getExternalStorageDirectory(), "product.jpg");
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
                     startActivityForResult(intent, 1);
                 }
 
                 else if (options[item].equals(getResources().getString(R.string.gallery_option))) {
-                    Intent intent = new   Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    Intent intent = new   Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     startActivityForResult(intent, 2);
                 }
 
@@ -282,22 +278,12 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
 
             if(!TextUtils.isEmpty(selectedImage.toString())){
 
-                Picasso.with(this)
-                        .load(selectedImage)
-                        .placeholder(R.drawable.common_full_open_on_phone) //TODO: put loading icon
+                Glide.with(this).load(selectedImage)
+                        .dontAnimate()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .placeholder(R.xml.progress) //TODO: put loading icon
                         .error(R.drawable.filter) //TODO: put product icon
-                        .into(productImg, new Callback() {
-                            @Override
-                            public void onSuccess() {
-                                Log.d("Picasso", "set product image was succeeded");
-                            }
-
-                            @Override
-                            public void onError() {
-                                Log.d("Picasso", "set product image was failed");
-
-                            }
-                        });
+                        .into(productImg);
             }
 
         }
@@ -462,11 +448,11 @@ public class AddProductActivity extends AppCompatActivity implements LoaderManag
         getSupportLoaderManager().initLoader(loaderID,bundle , this).forceLoad();//Initializes the Insert Loader
     }
 
-    private class MyTextWatcher implements TextWatcher {
+    private class ProductTextWatcher implements TextWatcher {
 
         private View view;
 
-        private MyTextWatcher(View view) {
+        private ProductTextWatcher(View view) {
             this.view = view;
         }
 

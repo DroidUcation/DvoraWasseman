@@ -10,25 +10,22 @@
     android:layout_marginBottom="@dimen/relative_layout_margin_list_row"
     android:background="@drawable/custom_bg">
 
-    <!--<ImageView
-    android:id="@+id/row_img"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_centerVertical="true"
-    android:layout_marginRight="@dimen/margin"
-    android:contentDescription="Product image"
-    tools:src="@mipmap/ic_launcher" />-->
-
-    <com.github.siyamed.shapeimageview.CircularImageView
+    <com.mikhaellopez.circularimageview.CircularImageView
         android:id="@+id/row_img"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="@dimen/circle_image_view_size"
+        android:layout_height="@dimen/circle_image_view_size"
         android:layout_centerVertical="true"
         android:layout_marginRight="@dimen/margin"
         android:contentDescription="Product image"
         android:src="@mipmap/ic_launcher"
-        app:siBorderWidth="2dp"
-        app:siBorderColor="@android:color/holo_green_light"/>
+        android:background="@android:color/white"
+        app:civ_border_color="@android:color/holo_green_light"
+        app:civ_border_width="2dp"
+        app:civ_shadow="true"
+        app:civ_shadow_radius="1"
+        app:civ_shadow_color="#EEEEEE"
+        />
+
 
     <LinearLayout
         android:layout_toRightOf="@id/row_img"

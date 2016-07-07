@@ -24,14 +24,14 @@ public class UploadFile {
         void onUrlReceived(Uri uri);
     }
 
-    public static void uploadFile(Context context, Uri fileUri , final OnuploadCompletedListener listener){
+    public static void uploadFile(Context context, Uri fileUri , final OnuploadCompletedListener listener, String fileCategory){
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReferenceFromUrl("gs://" + context.getString(R.string.google_storage_bucket));
 
-        // Create a child refere''nce imagesRef now points to "images"
+        // Create a child reference imagesRef now points to "images"
         StorageReference imagesRef = storageRef.child("images");
-        StorageReference productRef = storageRef.child("images/"+"product_img"+String.valueOf(System.currentTimeMillis())+fileUri.getLastPathSegment());
-        UploadTask uploadTask = productRef.putFile(fileUri);
+        StorageReference itemRef = storageRef.child("images/"+fileCategory+"s/"+fileCategory+"_img"+String.valueOf(System.currentTimeMillis())+fileUri.getLastPathSegment());
+        UploadTask uploadTask = itemRef.putFile(fileUri);
 
         // Register observers to listen for when the download is done or if it fails
         uploadTask.addOnFailureListener(new OnFailureListener() {

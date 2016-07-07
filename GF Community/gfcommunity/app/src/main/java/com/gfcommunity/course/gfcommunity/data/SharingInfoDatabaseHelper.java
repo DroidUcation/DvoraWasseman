@@ -44,6 +44,7 @@ public class SharingInfoDatabaseHelper extends SQLiteOpenHelper {
                     + SharingInfoContract.RecipesEntry.DINERS_NUMBER + " INTEGER, "
                     + SharingInfoContract.RecipesEntry.DIFFICULTY_PREPARATION + " TEXT, "
                     + SharingInfoContract.RecipesEntry.RECIPE_STORY + " TEXT, "
+                    + SharingInfoContract.RecipesEntry.CATEGORY + " TEXT, "
                     + SharingInfoContract.RecipesEntry.CREATED_AT + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
                     + SharingInfoContract.RecipesEntry.USER_ID + " TEXT"+");";
 
@@ -55,6 +56,7 @@ public class SharingInfoDatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         // creating required tables
         db.execSQL(CREATE_TABLE_PRODUCTS);
+        db.execSQL(CREATE_TABLE_RECIPES);
 
         ContentValues values = new ContentValues();
 

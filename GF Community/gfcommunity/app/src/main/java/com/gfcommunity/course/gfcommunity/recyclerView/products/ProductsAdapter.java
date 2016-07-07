@@ -1,4 +1,4 @@
-package com.gfcommunity.course.gfcommunity.recyclerView;
+package com.gfcommunity.course.gfcommunity.recyclerView.products;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,75 +10,27 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Filter;
-import android.widget.Filterable;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.gfcommunity.course.gfcommunity.R;
-import com.gfcommunity.course.gfcommunity.activities.ProductDetailsActivity;
-import com.gfcommunity.course.gfcommunity.data.products.ProductsContentProvider;
+import com.gfcommunity.course.gfcommunity.activities.products.ProductDetailsActivity;
 import com.gfcommunity.course.gfcommunity.data.SharingInfoContract;
 import com.gfcommunity.course.gfcommunity.model.Product;
-import com.github.siyamed.shapeimageview.CircularImageView;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
-
+import com.mikhaellopez.circularimageview.CircularImageView;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * Provide views to RecyclerView with data from productList.
  */
-public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHolder> implements Filterable{
+public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHolder>{
     static Cursor cursor;
     static Context context;
     private List<Product> mProducts;
-    private String picassoLogTag = "Picasso productsAdapter";
 
-    @Override
-    public Filter getFilter() {
-       return new Filter() {
-            @Override
-            protected FilterResults performFiltering(CharSequence constraint) {
-                FilterResults results = new FilterResults();
-                if (constraint != null) {
-                    mProducts = getFilteredList(constraint);
-                    if (mProducts != null) {
-                        results.values = mProducts;
-                        results.count = mProducts.size();
-                    }
-                }
-                return results;
-            }
-
-            @Override
-            protected void publishResults(CharSequence constraint, FilterResults results) {
-                notifyDataSetChanged();
-            }
-        };
-    }
-
-    private ArrayList<Product> getFilteredList(CharSequence constraint) {
-
-        String query = constraint.toString().toLowerCase();
-        String selection = SharingInfoContract.ProductsEntry.PRODUCT_NAME + " LIKE '" + query +"'";
-
-        Cursor cursor = context.getContentResolver().query(ProductsContentProvider.PRODUCTS_CONTENT_URI, null, selection, null, null);
-
-        ArrayList<Product> productsList = new ArrayList<>();
-
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                do {
-                    productsList.add(setProductValues(cursor));
-                } while (cursor.moveToNext());
-            }
-            cursor.close();
-        }
-        return productsList;
-    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private TextView title, subTitle, text;
@@ -180,26 +132,16 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
         }
         holder.text.setText(text);
 
-        //Set product image by picasso
+        //Set product image by Glide
         String productImgPath = cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.IMAGE_URI));
-        //String productImgPath = "https://firebasestorage.googleapis.com/v0/b/gf-community.appspot.com/o/images%2Fproduct_img146697445826120160610_141506.jpg?alt=media&token=5130c587-38af-4e03-a401-cfea8afc08dc";
+        //String productImgPath = "https://firebasestorage.googleapis.com/v0/b/gf-community.appspot.com/o/images%2Fproduct_img14676540477212278?alt=media&token=d6a5d69a-b644-410d-89d8-14bfff807833";
         if(!TextUtils.isEmpty(productImgPath)) {
-            Picasso.with(context)
-                    .load(productImgPath)
-                    .placeholder(R.drawable.common_full_open_on_phone) //TODO: put loading icon
+            Glide.with(context).load(productImgPath)
+                    .dontAnimate()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .placeholder(R.xml.progress) //TODO: put product icon
                     .error(R.drawable.filter) //TODO: put product icon
-                    .into( holder.productImg, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            Log.d(picassoLogTag, "set product image was succeeded");
-                        }
-
-                        @Override
-                        public void onError() {
-                            Log.d(picassoLogTag, "set product image was failed");
-
-                        }
-                    });
+                    .into(holder.productImg);
         }
 
     }

@@ -1,4 +1,4 @@
-package com.gfcommunity.course.gfcommunity.activities;
+package com.gfcommunity.course.gfcommunity.activities.products;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -7,16 +7,16 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.util.Linkify;
-import android.util.Log;
+
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.gfcommunity.course.gfcommunity.model.Product;
 import com.gfcommunity.course.gfcommunity.R;
 import com.gfcommunity.course.gfcommunity.utils.DateFormatUtil;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
 
 public class ProductDetailsActivity extends AppCompatActivity implements View.OnClickListener {
     private Product product;
@@ -44,25 +44,15 @@ public class ProductDetailsActivity extends AppCompatActivity implements View.On
         productNameTxt.setText(!TextUtils.isEmpty(productName) ? productName : "");
 
         ImageView productImg = (ImageView) findViewById(R.id.product_img);
-        String imgUri = product.getImgUrl();
-        if(!TextUtils.isEmpty(imgUri)){
-            Picasso.with(this)
-                    //.load("http://apod.nasa.gov/apod/image/1606/Omega_Crete_200mm_50schedler.jpg")
-                    .load(imgUri)
+        String imgUrl = product.getImgUrl();
+        if(!TextUtils.isEmpty(imgUrl)){
+            //imgUrl = "https://firebasestorage.googleapis.com/v0/b/gf-community.appspot.com/o/images%2Fproduct_img14676540477212278?alt=media&token=d6a5d69a-b644-410d-89d8-14bfff807833";
+            Glide.with(this).load(imgUrl)
+                    .dontAnimate()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .placeholder(R.xml.progress) //TODO: put loading icon
                     .error(R.drawable.filter) //TODO: put product icon
-                    .into(productImg, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            Log.d("Picasso", "success");
-                        }
-
-                        @Override
-                        public void onError() {
-                            Log.d("Picasso", "onError");
-
-                        }
-                    });
+                    .into(productImg);
         }
 
         TextView storeNameTxt = (TextView) findViewById(R.id.store_name_txt);

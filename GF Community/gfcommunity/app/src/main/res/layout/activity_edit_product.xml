@@ -104,9 +104,9 @@
         </EditText>
 
         <Button
-            android:id="@+id/add_product_btn"
+            android:id="@+id/save_product_btn"
             android:layout_height="wrap_content"
-            android:text="@string/add_product"
+            android:text="@string/save_product"
             android:layout_width="fill_parent">
         </Button>
     </LinearLayout>
