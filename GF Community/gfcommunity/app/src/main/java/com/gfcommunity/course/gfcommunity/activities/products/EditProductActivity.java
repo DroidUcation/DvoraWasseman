@@ -37,6 +37,7 @@ import com.gfcommunity.course.gfcommunity.R;
 import com.gfcommunity.course.gfcommunity.data.SharingInfoContract;
 import com.gfcommunity.course.gfcommunity.firebase.storage.UploadFile;
 import com.gfcommunity.course.gfcommunity.loaders.InsertProductLoader;
+import com.gfcommunity.course.gfcommunity.loaders.UpdateProductLoader;
 import com.gfcommunity.course.gfcommunity.recyclerView.products.ProductsAdapter;
 import com.gfcommunity.course.gfcommunity.utils.DateFormatUtil;
 import com.gfcommunity.course.gfcommunity.utils.SpinnerAdapter;
@@ -44,7 +45,7 @@ import com.gfcommunity.course.gfcommunity.utils.SpinnerAdapter;
 import java.io.File;
 
 
-public class EditProductActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Uri>, View.OnClickListener, AdapterView.OnItemSelectedListener, UploadFile.OnuploadCompletedListener {
+public class EditProductActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Integer>, View.OnClickListener, AdapterView.OnItemSelectedListener, UploadFile.OnuploadCompletedListener {
     private Button saveProductBtn;
     private EditText productNameEditTxt;
     private EditText storeNameEditTxt;
@@ -112,10 +113,12 @@ public class EditProductActivity extends AppCompatActivity implements LoaderMana
         citiesSpinner.setAdapter(dataAdapter);
         citiesSpinner.setSelection(dataAdapter.getCount());// show hint
 
+
+
     }
 
     @Override
-    public Loader<Uri> onCreateLoader(int id, Bundle args) {
+    public Loader<Integer> onCreateLoader(int id, Bundle args) {
         String downloadUrlPath = args != null ? args.getString("downloadUrlPath") : "";
         ContentValues values = new ContentValues();
         productName = productNameEditTxt.getText().toString();
@@ -136,49 +139,12 @@ public class EditProductActivity extends AppCompatActivity implements LoaderMana
         values.put(SharingInfoContract.ProductsEntry.COMMENT, !TextUtils.isEmpty(comment) ? comment : "");
         values.put(SharingInfoContract.ProductsEntry.IMAGE_URI, !TextUtils.isEmpty(downloadUrlPath) ? downloadUrlPath : "");
 
-        return new InsertProductLoader(this, values);
+        return new UpdateProductLoader(this,values,"");
     }
 
-    /*
-     * Create pending intent for details activity which be opened from notification
-     * @param productUri: relevant product uri to get product details
-     * @return PendingIntent
-     */
-    public PendingIntent createPendingIntent(Uri productUri){
-        //Add notification action
-        Intent productDetailsIntent = new Intent(this, ProductDetailsActivity.class);
-        Cursor cursor = this.getContentResolver().query(productUri, null, null, null, null);
-        if(cursor != null && cursor.moveToFirst()) {
-            productDetailsIntent.putExtra("selected_item", ProductsAdapter.setProductValues(cursor)); //Pass relevant product to ProductDetailsActivity
-        }
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-
-        // Adds the Intent that starts the Activity to the top of the stack
-        stackBuilder.addNextIntentWithParentStack(productDetailsIntent);
-        PendingIntent pi = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);
-        return pi;
-    }
-
-//    /**
-//     * Send notification about new product
-//     */
-//    public void sendNotification(Uri productUri){
-//        Notification n = new NotificationCompat.Builder(this)
-//                .setContentTitle(getString(R.string.product_notification_title))
-//                .setContentText(String.format(getString(R.string.product_notification_text),productName,storeName ))
-//                .setSmallIcon(R.drawable.ic_menu_send) //TODO: put app icon
-//                .setDefaults(Notification.DEFAULT_SOUND)
-//                .setAutoCancel(true)
-//                .setContentIntent(createPendingIntent(productUri))
-//                .build();
-//
-//        NotificationManager notificationManager =
-//                (NotificationManager) getSystemService(this.NOTIFICATION_SERVICE);
-//        notificationManager.notify(1, n);
-//    }
 
     @Override
-    public void onLoadFinished(Loader<Uri> loader, Uri data) {
+    public void onLoadFinished(Loader<Integer> loader, Integer data) {
         Log.i(logTag, "Insert product succssed: "+ productName);
         Toast.makeText(this,String.format(getString(R.string.product_saved_msg), productName),Toast.LENGTH_SHORT).show();//TODO: Show inserted successfully popup
         //TODO: check if user city is same as product city
@@ -187,7 +153,7 @@ public class EditProductActivity extends AppCompatActivity implements LoaderMana
     }
 
     @Override
-    public void onLoaderReset(Loader<Uri> loader) {
+    public void onLoaderReset(Loader<Integer> loader) {
 
     }
 

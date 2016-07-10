@@ -18,32 +18,38 @@ import com.gfcommunity.course.gfcommunity.R;
 import com.gfcommunity.course.gfcommunity.activities.products.ProductDetailsActivity;
 import com.gfcommunity.course.gfcommunity.data.SharingInfoContract;
 import com.gfcommunity.course.gfcommunity.model.Product;
+import com.gfcommunity.course.gfcommunity.recyclerView.SelectableAdapter;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import java.sql.Timestamp;
 import java.util.List;
 
 
+
 /**
  * Provide views to RecyclerView with data from productList.
  */
-public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHolder>{
+public class ProductsAdapter extends SelectableAdapter<ProductsAdapter.ViewHolder> {
     static Cursor cursor;
     static Context context;
     private List<Product> mProducts;
+    private ViewHolder.ClickListener clickListener;
 
 
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener , View.OnLongClickListener {
         private TextView title, subTitle, text;
         private CircularImageView productImg;
         private static SparseArray<Product> productsMap = new SparseArray<Product>();//Products map mapped by product ID
+        private ClickListener listener;
 
-        public ViewHolder(View view) {
+        public ViewHolder(View view, ClickListener listener) {
             super(view);
             title = (TextView) view.findViewById(R.id.row_title);
             subTitle = (TextView) view.findViewById(R.id.row_subtitle);
             text = (TextView) view.findViewById(R.id.row_text);
             productImg = (CircularImageView) view.findViewById(R.id.row_img);
+            this.listener = listener;
             view.setOnClickListener(this);
+            view.setOnLongClickListener(this);
         }
 
         /**
@@ -65,8 +71,24 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
 
             Intent intent = new Intent(context, ProductDetailsActivity.class);
             intent.putExtra("selected_item",product); //Pass selected product to ProductDetailsActivity
+
             context.startActivity(intent);
         }
+
+        @Override
+        public boolean onLongClick(View v) {
+            if (listener != null) {
+                return listener.onItemLongClicked(getAdapterPosition());
+            }
+
+            return false;
+        }
+
+        public interface ClickListener {
+            public void onItemClicked(int position);
+            public boolean onItemLongClicked(int position);
+        }
+
     }
 
     public static Product setProductValues(Cursor cursor){
@@ -97,9 +119,10 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
         }
         return product;
     }
-    public ProductsAdapter(Context context, Cursor cursor) {
+    public ProductsAdapter(Context context, Cursor cursor, ViewHolder.ClickListener clickListener) {
         this.context = context;
         this.cursor = cursor;
+        this.clickListener = clickListener;
     }
 
     @Override
@@ -107,7 +130,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_row, parent, false);
 
-        return new ViewHolder(itemView);
+        return new ViewHolder(itemView, clickListener);
     }
 
     @Override

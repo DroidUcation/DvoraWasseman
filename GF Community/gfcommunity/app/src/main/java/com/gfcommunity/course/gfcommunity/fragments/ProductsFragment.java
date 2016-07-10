@@ -34,7 +34,7 @@ import com.gfcommunity.course.gfcommunity.utils.SpinnerAdapter;
 
 public class ProductsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener , AdapterView.OnItemSelectedListener{
     private int loaderID = 0; // Identifies a particular Loader being used in this component
-    private ProductsAdapter productsAdapter;
+    public static ProductsAdapter productsAdapter;
     private RecyclerView recyclerView;
     private ImageView noRecordsImg;
     private ProgressBar progressBar;
@@ -57,7 +57,7 @@ public class ProductsFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         //RecyclerView
-        recyclerView = (RecyclerView) view.findViewById(R.id.products_recycler_view);
+         recyclerView = (RecyclerView) view.findViewById(R.id.products_recycler_view);
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(mLayoutManager);
@@ -122,7 +122,7 @@ public class ProductsFragment extends Fragment implements LoaderManager.LoaderCa
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         progressBar.setVisibility(View.GONE);
         if (cursor != null && cursor.moveToFirst()) {
-            productsAdapter = new ProductsAdapter(context, cursor);
+            productsAdapter = new ProductsAdapter(context, cursor, (ProductsAdapter.ViewHolder.ClickListener) getActivity());
             recyclerView.setAdapter(productsAdapter);
             recyclerView.setVisibility(View.VISIBLE);
             noRecordsImg.setVisibility(View.GONE);
