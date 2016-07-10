@@ -78,7 +78,10 @@ public class ProductsAdapter extends SelectableAdapter<ProductsAdapter.ViewHolde
         @Override
         public boolean onLongClick(View v) {
             if (listener != null) {
-                return listener.onItemLongClicked(getAdapterPosition());
+                int position = this.getAdapterPosition();
+                cursor.moveToPosition(position);
+                int productID = cursor.getInt(cursor.getColumnIndex(SharingInfoContract.ProductsEntry._ID));
+                return listener.onItemLongClicked(position,productID);
             }
 
             return false;
@@ -86,7 +89,7 @@ public class ProductsAdapter extends SelectableAdapter<ProductsAdapter.ViewHolde
 
         public interface ClickListener {
             public void onItemClicked(int position);
-            public boolean onItemLongClicked(int position);
+            public boolean onItemLongClicked(int position, int productID);
         }
 
     }

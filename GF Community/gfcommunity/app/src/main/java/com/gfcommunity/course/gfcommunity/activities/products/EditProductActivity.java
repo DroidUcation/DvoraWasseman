@@ -5,6 +5,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,8 +19,10 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
@@ -29,15 +32,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.gfcommunity.course.gfcommunity.R;
 import com.gfcommunity.course.gfcommunity.data.SharingInfoContract;
+import com.gfcommunity.course.gfcommunity.data.products.ProductsContentProvider;
 import com.gfcommunity.course.gfcommunity.firebase.storage.UploadFile;
 import com.gfcommunity.course.gfcommunity.loaders.InsertProductLoader;
 import com.gfcommunity.course.gfcommunity.loaders.UpdateProductLoader;
+import com.gfcommunity.course.gfcommunity.model.Product;
 import com.gfcommunity.course.gfcommunity.recyclerView.products.ProductsAdapter;
 import com.gfcommunity.course.gfcommunity.utils.DateFormatUtil;
 import com.gfcommunity.course.gfcommunity.utils.SpinnerAdapter;
@@ -62,6 +68,9 @@ public class EditProductActivity extends AppCompatActivity implements LoaderMana
     private Uri selectedImage;
     private String productName;
     private String storeName;
+    private String selectedProductId;
+    private Spinner citiesSpinner;
+    private String[] cityList;
 
 
     @Override
@@ -69,7 +78,66 @@ public class EditProductActivity extends AppCompatActivity implements LoaderMana
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_product);
 
+
         initializeViews();//Define views and bind them to events
+
+        Intent intent = getIntent();
+        selectedProductId = intent.getStringExtra("selectedProductId");
+        if(selectedProductId!=null){
+            Uri _uri = ContentUris.withAppendedId(ProductsContentProvider.PRODUCTS_CONTENT_URI, Long.valueOf(selectedProductId));
+            Cursor cursor = this.getContentResolver().query(_uri, null, null, null, null);
+            if(cursor != null && cursor.moveToFirst()) {
+                Product product = ProductsAdapter.setProductValues(cursor);
+
+                String city=product.getCity();
+                int indexCity=0;
+                for (; indexCity<cityList.length ;indexCity++){
+                    if(cityList[indexCity]==city)
+                        break;
+                }
+                citiesSpinner.setSelection(indexCity);
+                storeStreetEditTxt.setText(product.getStreet());
+                storeHouseNoEditTxt.setText(product.getHoseNum());
+                commentEditTxt.setText(product.getComment());
+
+
+
+
+                String productName = product.getProductName();
+                productNameEditTxt.setText(!TextUtils.isEmpty(productName) ? productName : "");
+
+
+                String imgUrl = product.getImgUrl();
+                if(!TextUtils.isEmpty(imgUrl)){
+                    //imgUrl = "https://firebasestorage.googleapis.com/v0/b/gf-community.appspot.com/o/images%2Fproduct_img14676540477212278?alt=media&token=d6a5d69a-b644-410d-89d8-14bfff807833";
+                    Glide.with(this).load(imgUrl)
+                            .dontAnimate()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .placeholder(R.xml.progress) //TODO: put loading icon
+                            .error(R.drawable.filter) //TODO: put product icon
+                            .into(productImg);
+                }
+
+
+                String storeName = product.getStoreName();
+                storeNameEditTxt.setText(!TextUtils.isEmpty(storeName) ? storeName : "");
+                storeUrlEditTxt.setText("");
+                String storeUrl = product.getStoreUrl();
+                if(!TextUtils.isEmpty(storeUrl)) {
+                    storeUrl = storeUrl.trim();
+                    String linkedText = String.format("<a href=\"%s\">%s</a>", "http://"+storeUrl, storeUrl);
+                    storeUrlEditTxt.setText(Html.fromHtml(linkedText));
+                    Linkify.addLinks(storeUrlEditTxt, Linkify.WEB_URLS);
+                }
+
+                String storePhone = product.getPhone();
+                storePhoneEditTxt.setText(!TextUtils.isEmpty(storePhone) ? storePhone : "");
+                String comment = product.getComment();
+                commentEditTxt.setText(!TextUtils.isEmpty(comment) ? comment : "");
+
+
+            }
+        }
     }
 
     /**
@@ -87,7 +155,7 @@ public class EditProductActivity extends AppCompatActivity implements LoaderMana
         storeNameEditTxt  = (EditText) findViewById(R.id.store_edit_txt);
         storeUrlEditTxt  = (EditText) findViewById(R.id.store_url_edit_txt);
         storePhoneEditTxt  = (EditText) findViewById(R.id.store_phone_edit_txt);
-        Spinner citiesSpinner = (Spinner) findViewById(R.id.citiesSpinner);
+        citiesSpinner = (Spinner) findViewById(R.id.citiesSpinner);
         storeStreetEditTxt = (EditText) findViewById(R.id.store_street_edit_txt);
         storeHouseNoEditTxt = (EditText) findViewById(R.id.store_house_no_edit_txt);
         commentEditTxt = (EditText) findViewById(R.id.product_comment_txt);
@@ -104,7 +172,7 @@ public class EditProductActivity extends AppCompatActivity implements LoaderMana
 
         //Cities spinner
         String[] cityArray = getResources().getStringArray(R.array.cities_array);
-        String[] cityList = new String[(cityArray.length)+1];
+        cityList = new String[(cityArray.length)+1];
         System.arraycopy(cityArray, 0, cityList, 0, cityArray.length);
         cityList[cityArray.length] = getResources().getString(R.string.city_spinner_title);
         citiesSpinner.setPrompt(getResources().getString(R.string.city_spinner_title));

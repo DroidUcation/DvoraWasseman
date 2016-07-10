@@ -11,7 +11,9 @@ public class Product implements Serializable{
     private String productName;
     private int image;
     private String storeName;
-    private String address;
+    private String city;
+    private String street;
+    private int hoseNum;
     private String storeUrl;
     private String phone;
     private String comment;
@@ -21,16 +23,18 @@ public class Product implements Serializable{
 
     public Product(){}
 
-    public Product(String productName, int image, Timestamp createdAt, String userID, String comment, String phone, String address, String storeName, String storeUrl, String imgUri) {
+    public Product(String productName, String storeName, int image, String city, int hoseNum, String street, String storeUrl, String phone, String comment, String userID, Timestamp createdAt, String imgUri) {
         this.productName = productName;
-        this.image = image;
-        this.createdAt = createdAt;
-        this.userID = userID;
-        this.comment = comment;
-        this.phone = phone;
-        this.address = address;
         this.storeName = storeName;
+        this.image = image;
+        this.city = city;
+        this.hoseNum = hoseNum;
+        this.street = street;
         this.storeUrl = storeUrl;
+        this.phone = phone;
+        this.comment = comment;
+        this.userID = userID;
+        this.createdAt = createdAt;
         this.imgUri = imgUri;
     }
 
@@ -58,12 +62,28 @@ public class Product implements Serializable{
         this.storeName = storeName;
     }
 
-    public String getAddress() {
-        return address;
+    public String getCity() {
+        return city;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
+    }
+
+    public int getHoseNum() {
+        return hoseNum;
+    }
+
+    public void setHoseNum(int hoseNum) {
+        this.hoseNum = hoseNum;
     }
 
     public String getStoreUrl() {
@@ -121,13 +141,15 @@ public class Product implements Serializable{
                 "productName='" + productName + '\'' +
                 ", image=" + image +
                 ", storeName='" + storeName + '\'' +
-                ", address='" + address + '\'' +
+                ", city='" + city + '\'' +
+                ", street='" + street + '\'' +
+                ", hoseNum=" + hoseNum +
                 ", storeUrl='" + storeUrl + '\'' +
                 ", phone='" + phone + '\'' +
                 ", comment='" + comment + '\'' +
                 ", userID='" + userID + '\'' +
                 ", createdAt=" + createdAt +
-                ", imgUrl='" + imgUri + '\'' +
+                ", imgUri='" + imgUri + '\'' +
                 '}';
     }
 }

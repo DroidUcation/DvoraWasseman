@@ -23,7 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Toast;
-import android.widget.PopupMenu;
+
 import java.util.ArrayList;
 import java.util.List;
 import android.support.v7.widget.SearchView;
@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements ProductsAdapter.V
     private TabLayout tabLayout;
     private int loaderID = 1;//Insert products loader ID
     private ViewPager viewPager;
+    private int selectedProductId=0;
     private boolean selectionMode=false;
     private int[] tabIcons = {
             R.mipmap.ic_launcher,
@@ -126,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements ProductsAdapter.V
                 if (NetworkConnectedUtil.isNetworkAvailable(this)) {
                     //TODO: find selected item and pass it to EditProductActivity
                     Intent intent = new Intent(this, EditProductActivity.class);
-                    intent.putExtra("")//send product id to init
+                    intent.putExtra("selectedProductId",selectedProductId);//send product id to init
                     startActivity(intent);
                 } else {
                     Toast.makeText(this, getString(R.string.no_internet_connection_msg), Toast.LENGTH_SHORT).show();
@@ -169,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements ProductsAdapter.V
 
     private void deleteItem() {
         Bundle b = new Bundle();
-        b.putCharSequence("itemIdToDelete", itemIdToDelete);
+        b.putCharSequence("itemIdToDelete", selectedProductId+"");
         getSupportLoaderManager().initLoader(loaderID, b, this).forceLoad();//Initializes delete Loader
     }
 
@@ -179,12 +180,13 @@ public class MainActivity extends AppCompatActivity implements ProductsAdapter.V
     }
 
     @Override
-    public boolean onItemLongClicked(int position) {
+    public boolean onItemLongClicked(int position,int productID) {
         if (actionMode == null) {
             actionMode = startSupportActionMode(actionModeCallback);
         }
 
         toggleSelection(position);
+        selectedProductId = productID;
 
         return true;
     }
