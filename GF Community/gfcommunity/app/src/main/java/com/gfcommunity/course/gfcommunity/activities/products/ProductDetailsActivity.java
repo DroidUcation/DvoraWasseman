@@ -60,7 +60,11 @@ public class ProductDetailsActivity extends AppCompatActivity implements View.On
         storeNameTxt.setText(!TextUtils.isEmpty(storeName) ? storeName : "");
 
         TextView storeAddressTxt = (TextView) findViewById(R.id.address_txt);
-        String storeAddress = product.getAddress();
+
+        String storeAddress = String.format(this.getResources().getString(R.string.address),
+                 product.getHoseNum(),
+                 product.getStreet(),
+        product.getCity());
         storeAddressTxt.setText(!TextUtils.isEmpty(storeAddress) ? storeAddress : "");
 
         TextView storeUrlTxt = (TextView) findViewById(R.id.store_url_txt);

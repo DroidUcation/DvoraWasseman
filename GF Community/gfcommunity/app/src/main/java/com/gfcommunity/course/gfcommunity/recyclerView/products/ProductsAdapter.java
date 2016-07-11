@@ -106,10 +106,9 @@ public class ProductsAdapter extends SelectableAdapter<ProductsAdapter.ViewHolde
             String city = cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.CITY));
             if (houseNo > 0 && !TextUtils.isEmpty(street) && !TextUtils.isEmpty(city)) {
                 //Build and set address
-                product.setAddress(String.format(context.getResources().getString(R.string.address),
-                        cursor.getInt(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.HOUSE_NO)),
-                        cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.STREET)),
-                        cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.CITY))));
+                product.setHoseNum(houseNo);
+                product.setStreet(street);
+                product.setCity(city);
             }
 
             product.setStoreUrl(cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.STORE_URL)));

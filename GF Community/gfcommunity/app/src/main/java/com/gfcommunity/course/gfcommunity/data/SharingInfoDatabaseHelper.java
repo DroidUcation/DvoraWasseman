@@ -60,12 +60,25 @@ public class SharingInfoDatabaseHelper extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
 
-        values.put(SharingInfoContract.ProductsEntry.STORE_NAME, "Store name");
-        values.put(SharingInfoContract.ProductsEntry.PRODUCT_NAME, "Product name");
+        values.put(SharingInfoContract.ProductsEntry.STORE_NAME, "Super Sal Market");
+        values.put(SharingInfoContract.ProductsEntry.PRODUCT_NAME, "gluten free cookies");
         values.put(SharingInfoContract.ProductsEntry.USER_ID, "User ID");
         values.put(SharingInfoContract.ProductsEntry.HOUSE_NO, 25);
-        values.put(SharingInfoContract.ProductsEntry.STREET, "Yigal Alon");
-        values.put(SharingInfoContract.ProductsEntry.CITY, "Bnei Brak");
+        values.put(SharingInfoContract.ProductsEntry.STREET, "Herzel");
+        values.put(SharingInfoContract.ProductsEntry.CITY, "Eilat");
+        values.put(SharingInfoContract.ProductsEntry.PHONE, "0526984458");
+        values.put(SharingInfoContract.ProductsEntry.IMAGE_URI, "https://www.gianteagle.com/PageFiles/11233/article_Save_FreeCookiesForKids_071612_.jpg");
+        db.insert(SharingInfoContract.ProductsEntry.TABLE_NAME,null, values);
+
+        values = new ContentValues();
+        values.put(SharingInfoContract.ProductsEntry.STORE_NAME, "Super Sal Market");
+        values.put(SharingInfoContract.ProductsEntry.PRODUCT_NAME, "gluten free cookies");
+        values.put(SharingInfoContract.ProductsEntry.USER_ID, "User ID");
+        values.put(SharingInfoContract.ProductsEntry.HOUSE_NO, 25);
+        values.put(SharingInfoContract.ProductsEntry.STREET, "Herzel");
+        values.put(SharingInfoContract.ProductsEntry.CITY, "Eilat");
+        values.put(SharingInfoContract.ProductsEntry.PHONE, "0526984458");
+        values.put(SharingInfoContract.ProductsEntry.IMAGE_URI, "https://www.i-nexus.com/wp-content/uploads/2015/05/cookie.gif");
         db.insert(SharingInfoContract.ProductsEntry.TABLE_NAME,null, values);
     }
 

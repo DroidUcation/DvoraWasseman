@@ -1,6 +1,7 @@
 package com.gfcommunity.course.gfcommunity.activities;
 
 import android.app.SearchManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements ProductsAdapter.V
     private ViewPager viewPager;
     private int selectedProductId=0;
     private boolean selectionMode=false;
+    static Context context;
     private int[] tabIcons = {
             R.mipmap.ic_launcher,
             R.mipmap.ic_launcher,
@@ -58,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements ProductsAdapter.V
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context=this;
         setContentView(R.layout.activity_main);
 
         fragmentPosition = getIntent().getIntExtra("fragmentPosition", 0);
@@ -82,14 +85,7 @@ public class MainActivity extends AppCompatActivity implements ProductsAdapter.V
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.toolbar, menu);
-
-
-        menu.findItem(R.id.action_search).setVisible(!selectionMode);
-        menu.findItem(R.id.action_share).setVisible(selectionMode);
-        menu.findItem(R.id.action_favorites).setVisible(selectionMode);
-        menu.findItem(R.id.action_edit).setVisible(selectionMode);
-        menu.findItem(R.id.action_delete).setVisible(selectionMode);
+        setToolbar(menu);
 
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
         SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
@@ -97,7 +93,14 @@ public class MainActivity extends AppCompatActivity implements ProductsAdapter.V
         return true;
     }
 
-
+    private void setToolbar(Menu menu){
+        getMenuInflater().inflate(R.menu.toolbar, menu);
+        menu.findItem(R.id.action_search).setVisible(!selectionMode);
+        menu.findItem(R.id.action_share).setVisible(selectionMode);
+        menu.findItem(R.id.action_favorites).setVisible(selectionMode);
+        menu.findItem(R.id.action_edit).setVisible(selectionMode);
+        menu.findItem(R.id.action_delete).setVisible(selectionMode);
+}
     private void setupTabIcons() {
         tabLayout.getTabAt(0).setIcon(tabIcons[0]);
         tabLayout.getTabAt(1).setIcon(tabIcons[1]);
@@ -248,12 +251,46 @@ public class MainActivity extends AppCompatActivity implements ProductsAdapter.V
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
-                case R.id.action_delete:
-                    // TODO: actually remove items
-                    Log.d(TAG, "menu_remove");
-                    mode.finish();
+                case R.id.action_edit:
+                    item.setChecked(true);
+                    if (NetworkConnectedUtil.isNetworkAvailable(context)) {
+                        //TODO: find selected item and pass it to EditProductActivity
+                        Intent intent = new Intent(context, EditProductActivity.class);
+                        intent.putExtra("selectedProductId",selectedProductId);//send product id to init
+                        startActivity(intent);
+                    } else {
+                        Toast.makeText(context, getString(R.string.no_internet_connection_msg), Toast.LENGTH_SHORT).show();
+                    }
                     return true;
 
+                case R.id.action_delete:
+                    item.setChecked(true);
+                    if (NetworkConnectedUtil.isNetworkAvailable(context)) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                if (!isFinishing()){
+                                    new AlertDialog.Builder(MainActivity.this)
+                                            .setTitle("Delete Product")
+                                            .setMessage("Are you sure you want to delete product?")
+                                            .setCancelable(false)
+                                            .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    //clicked on ok button
+                                                    //TODO: delete selected item
+                                                    deleteItem();
+                                                }
+                                            }).create().show();
+                                }
+                            }
+                        });
+
+                    } else {
+                        Toast.makeText(context, getString(R.string.no_internet_connection_msg), Toast.LENGTH_SHORT).show();
+                    }
+                    return true;
                 default:
                     return false;
             }
