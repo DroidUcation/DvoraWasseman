@@ -11,11 +11,8 @@ import com.gfcommunity.course.gfcommunity.data.products.ProductsContentProvider;
  * Insert product by asyncTaskLoader
  */
 public class InsertProductLoader extends AsyncTaskLoader<Uri> {
-    ContentValues values;
-    Context context;
-    public InsertProductLoader(Context context) {
-        super(context);
-    }
+    private ContentValues values;
+    private Context context;
 
     public InsertProductLoader(Context context, ContentValues values) {
         super(context);

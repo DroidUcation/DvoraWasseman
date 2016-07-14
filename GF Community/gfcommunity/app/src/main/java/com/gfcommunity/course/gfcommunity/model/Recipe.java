@@ -6,7 +6,7 @@ import java.sql.Timestamp;
 /**
  * Recipe to present row in recipe list
  */
-public class Recipe {
+public class Recipe implements Serializable{
     private String recipeName;
     private String ingredients;
     private String instructions;

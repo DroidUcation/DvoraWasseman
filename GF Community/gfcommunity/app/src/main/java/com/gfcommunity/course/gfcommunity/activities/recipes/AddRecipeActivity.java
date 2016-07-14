@@ -9,15 +9,19 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
@@ -28,7 +32,10 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -41,6 +48,7 @@ import com.gfcommunity.course.gfcommunity.recyclerView.recipes.RecipesAdapter;
 import com.gfcommunity.course.gfcommunity.utils.SpinnerAdapter;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class AddRecipeActivity extends AppCompatActivity  implements LoaderManager.LoaderCallbacks<Uri>, View.OnClickListener, AdapterView.OnItemSelectedListener, UploadFile.OnuploadCompletedListener{
     private Button addRecipetBtn;
@@ -50,15 +58,18 @@ public class AddRecipeActivity extends AppCompatActivity  implements LoaderManag
     private EditText preparationTimeEditTxt;
     private EditText dinersNumberEditTxt;
     private EditText recipeStoryEditTxt;
+    private Spinner recipesCategoriesSpinner;
     private ImageView recipeImg;
-    private Button addRecipeImgBtn;
+    private ImageView addIngredientImg;
+    private FloatingActionButton addRecipeImgBtn;
     private int loaderID = 0; //Insert recipes loader ID
     private String logTag = AddRecipeActivity.class.getName();
     private String selectedRecipeCategory;
     private String selectedDifficultyPreparation;
     private Uri selectedImage;
     private String recipeName;
-
+    private LinearLayout addIngredientsLayout;
+    private ArrayList<EditText> ingredientsEditTextsArray;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,15 +92,21 @@ public class AddRecipeActivity extends AppCompatActivity  implements LoaderManag
         preparationTimeEditTxt  = (EditText) findViewById(R.id.preparation_time_edit_txt);
         dinersNumberEditTxt  = (EditText) findViewById(R.id.diners_number_edit_txt);
         recipeStoryEditTxt  = (EditText) findViewById(R.id.recipe_story_edit_txt);
-        Spinner recipesCategoriesSpinner = (Spinner) findViewById(R.id.recipe_categories_spinner);
+        recipesCategoriesSpinner = (Spinner) findViewById(R.id.recipes_categories_spinner);
         Spinner difficultyPreparationSpinner = (Spinner) findViewById(R.id.difficulty_preparation_spinner);
-        addRecipeImgBtn = (Button)findViewById(R.id.select_recipe_img_btn);
-        addRecipeImgBtn.setTransformationMethod(null);  //Ignore automatic upper case
+        addRecipeImgBtn = (FloatingActionButton)findViewById(R.id.select_recipe_img_btn);
         recipeImg = (ImageView)findViewById(R.id.recipe_img);
+        addIngredientImg = (ImageView)findViewById(R.id.add_ingredient_img);
+        addIngredientsLayout = (LinearLayout) findViewById(R.id.ingredients_layout);
+
+        //Array of edit text for ingredients
+        ingredientsEditTextsArray = new ArrayList<EditText>();
+        ingredientsEditTextsArray.add(ingredientsEditTxt);
 
         //Bind views to Listener
         addRecipetBtn.setOnClickListener(this);
         addRecipeImgBtn.setOnClickListener(this);
+        addIngredientImg.setOnClickListener(this);
         recipesCategoriesSpinner.setOnItemSelectedListener(this);
         difficultyPreparationSpinner.setOnItemSelectedListener(this);
         recipeNameEditTxt.addTextChangedListener(new RecipeTextWatcher(recipeNameEditTxt));
@@ -124,7 +141,7 @@ public class AddRecipeActivity extends AppCompatActivity  implements LoaderManag
         recipeName = recipeNameEditTxt.getText().toString();
         values.put(SharingInfoContract.RecipesEntry.RECIPE_NAME, !TextUtils.isEmpty(recipeName) ? recipeName : "");
         String ingredients = ingredientsEditTxt.getText().toString();
-        values.put(SharingInfoContract.RecipesEntry.INGREDIENTS, !TextUtils.isEmpty(ingredients) ? ingredients : "");
+        values.put(SharingInfoContract.RecipesEntry.INGREDIENTS, concatEditTextsArray(ingredientsEditTextsArray)); //Concat ingredientsEditTextsArray array to string separated by ';'
         String instructions = instructionsEditTxt.getText().toString();
         values.put(SharingInfoContract.RecipesEntry.INSTRUCTIONS, !TextUtils.isEmpty(instructions) ? instructions : "");
         values.put(SharingInfoContract.RecipesEntry.CREATED_AT, DateFormat.format("yyyy-MM-dd hh:mm:ss", new java.util.Date()).toString());
@@ -139,7 +156,24 @@ public class AddRecipeActivity extends AppCompatActivity  implements LoaderManag
         values.put(SharingInfoContract.RecipesEntry.CATEGORY, !TextUtils.isEmpty(selectedRecipeCategory) && !(selectedRecipeCategory.equals(getString(R.string.select_recipe_category))) ? selectedRecipeCategory : "");
         values.put(SharingInfoContract.RecipesEntry.RECIPE_IMAGE_URl, !TextUtils.isEmpty(downloadUrlPath) ? downloadUrlPath : "");
 
+
         return new InsertRecipeLoader(this, values);
+    }
+
+    /**
+     * Concat EditText array to string separated by ';'
+     * @return concatString
+     */
+    private String concatEditTextsArray(ArrayList<EditText> editTextsArray) {
+        String concatString = "";
+        String ingredient;
+        for (EditText editText:editTextsArray) {
+            ingredient = (editText.getText() != null) ?  editText.getText().toString() : "";
+            if(!TextUtils.isEmpty(ingredient)) {
+                concatString += ingredient + ";";
+            }
+        }
+        return concatString;
     }
 
     /*
@@ -149,15 +183,15 @@ public class AddRecipeActivity extends AppCompatActivity  implements LoaderManag
      */
     public PendingIntent createPendingIntent(Uri recipeUri){
         //Add notification action
-        //Intent recipeDetailsIntent = new Intent(this, RecipeDetailsActivity.class);
+        Intent recipeDetailsIntent = new Intent(this, RecipeDetailsActivity.class);
         Cursor cursor = this.getContentResolver().query(recipeUri, null, null, null, null);
         if(cursor != null && cursor.moveToFirst()) {
-            //recipeDetailsIntent.putExtra("selected_item", RecipesAdapter.setRecipeValues(cursor)); //Pass relevant recipe to RecipeDetailsActivity
+            recipeDetailsIntent.putExtra("selected_item", RecipesAdapter.setRecipeValues(cursor)); //Pass relevant recipe to RecipeDetailsActivity
         }
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
 
         // Adds the Intent that starts the Activity to the top of the stack
-        //stackBuilder.addNextIntentWithParentStack(recipeDetailsIntent);
+        stackBuilder.addNextIntentWithParentStack(recipeDetailsIntent);
         PendingIntent pi = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);
         return pi;
     }
@@ -169,7 +203,7 @@ public class AddRecipeActivity extends AppCompatActivity  implements LoaderManag
         Notification n = new NotificationCompat.Builder(this)
                 .setContentTitle(getString(R.string.recipe_notification_title))
                 .setContentText(recipeName)
-                .setSmallIcon(R.drawable.ic_menu_send) //TODO: put app icon
+                .setSmallIcon(R.mipmap.ic_app)
                 .setDefaults(Notification.DEFAULT_SOUND)
                 .setAutoCancel(true)
                 .setContentIntent(createPendingIntent(recipeUri))
@@ -184,7 +218,7 @@ public class AddRecipeActivity extends AppCompatActivity  implements LoaderManag
     public void onLoadFinished(Loader<Uri> loader, Uri data) {
         Log.i(logTag, "Insert recipe succeed: "+ recipeName);
         Toast.makeText(this,String.format(getString(R.string.recipe_added_msg), recipeName),Toast.LENGTH_SHORT).show();//TODO: Show inserted successfully popup
-        //sendNotification(data); //Send notification
+        sendNotification(data); //Send notification
         finish(); //Close this activity and go back to Main Activity
     }
 
@@ -208,13 +242,28 @@ public class AddRecipeActivity extends AppCompatActivity  implements LoaderManag
             case R.id.select_recipe_img_btn:
                 selectImage(); //select image from camera or gallery
                 break;
+            case R.id.add_ingredient_img:
+                try{
+                    EditText edtView = new EditText(this);
+                    LayoutParams lParams = new LinearLayout.LayoutParams(
+                            LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+                    edtView.setHint(getString(R.string.ingredient));
+                    edtView.setLayoutParams(lParams);
+                    edtView.setInputType(InputType.TYPE_CLASS_TEXT);
+                    edtView.getBackground().setColorFilter(getResources().getColor(R.color.greenAppColor), PorterDuff.Mode.SRC_IN);
+                    addIngredientsLayout.addView(edtView);
+                    ingredientsEditTextsArray.add(edtView);
+                    break;
+                }catch(Exception e){
+                    Log.d(logTag, "Failed to create new ingredients edit text");
+                }
         }
     }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        switch(view.getId()){
-            case R.id.recipe_categories_spinner:
+        switch(parent.getId()){
+            case R.id.recipes_categories_spinner:
                 selectedRecipeCategory = parent.getItemAtPosition(position).toString();
                 break;
             case R.id.difficulty_preparation_spinner:
@@ -286,12 +335,11 @@ public class AddRecipeActivity extends AppCompatActivity  implements LoaderManag
             }
 
             if(!TextUtils.isEmpty(selectedImage.toString())){
-
                 Glide.with(this).load(selectedImage)
                         .dontAnimate()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .placeholder(R.xml.progress) //TODO: put loading icon
-                        .error(R.drawable.filter) //TODO: put recipe icon
+                        .placeholder(R.drawable.recipes)
+                        .error(R.drawable.recipes)
                         .into(recipeImg);
             }
 
@@ -306,11 +354,12 @@ public class AddRecipeActivity extends AppCompatActivity  implements LoaderManag
      */
     private boolean isValidatedForm() {
         boolean isValid = false;
+        boolean isRecipeCategorySelected = checkRequiredSpinnerItem(recipesCategoriesSpinner);
         boolean isRecipeNameFilled = validateRequiredText(recipeNameEditTxt); //validate recipe name
         boolean isIngredientsFilled = validateRequiredText(ingredientsEditTxt); //validate ingredients
         boolean isInstructionsFilled = validateRequiredText(instructionsEditTxt); //validate ingredients
 
-        if(isRecipeNameFilled && isIngredientsFilled && isInstructionsFilled) {
+        if(isRecipeNameFilled && isIngredientsFilled && isInstructionsFilled && isRecipeCategorySelected ) {
             isValid = true;
         }
         return isValid;
@@ -345,6 +394,23 @@ public class AddRecipeActivity extends AppCompatActivity  implements LoaderManag
     private boolean validateRequiredText(EditText editTextView) {
         if (TextUtils.isEmpty(editTextView.getText().toString().trim())) {
             setErrorMsg(editTextView);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Validate required spinner item text
+     * @param spinner
+     * @return isValid
+     */
+    private boolean checkRequiredSpinnerItem(Spinner spinner) {
+        if(TextUtils.isEmpty(selectedRecipeCategory) || selectedRecipeCategory.equals(getString(R.string.select_recipe_category))) {
+            TextView categoryItem = (TextView) recipesCategoriesSpinner.getSelectedView();
+            String errMessage = (String.format(getResources().getString(R.string.required_err_msg), getString(R.string.recipes_category)));
+            categoryItem.setError(errMessage);
+            categoryItem.setText(errMessage);//changes the selected item error text
+            requestFocus(categoryItem);
             return false;
         }
         return true;

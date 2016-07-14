@@ -27,8 +27,8 @@ public class SharingInfoContract {
     public  static  class RecipesEntry implements BaseColumns {
         public static  final String TABLE_NAME = "RecipesTBL";
         public static  final String RECIPE_NAME = "recipe_name";
-        public static  final String INGREDIENTS = "ingredients"; // Column INGREDIENTS is a list of string separated by ||.
-        public static  final String INSTRUCTIONS = "instructions"; // Column INSTRUCTIONS is a list of string separated by ||.
+        public static  final String INGREDIENTS = "ingredients"; // Column INGREDIENTS is a list of string separated by ;.
+        public static  final String INSTRUCTIONS = "instructions"; // Column INSTRUCTIONS is a list of string separated by ;.
         public static  final String RECIPE_IMAGE_URl = "recipe_img_url";
         public static  final String PREPARATION_TIME = "preparation_time";
         public static  final String DINERS_NUMBER = "diners_number";

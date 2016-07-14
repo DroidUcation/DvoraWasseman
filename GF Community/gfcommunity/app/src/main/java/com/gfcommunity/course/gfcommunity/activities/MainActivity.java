@@ -1,11 +1,14 @@
 package com.gfcommunity.course.gfcommunity.activities;
 
 import android.app.SearchManager;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -16,21 +19,24 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 import android.support.v7.widget.SearchView;
 import com.gfcommunity.course.gfcommunity.R;
+import com.gfcommunity.course.gfcommunity.activities.products.AddProductActivity;
 import com.gfcommunity.course.gfcommunity.activities.products.EditProductActivity;
+import com.gfcommunity.course.gfcommunity.activities.recipes.AddRecipeActivity;
 import com.gfcommunity.course.gfcommunity.data.SharingInfoContract;
+import com.gfcommunity.course.gfcommunity.data.products.ProductsContentProvider;
 import com.gfcommunity.course.gfcommunity.fragments.BlankFragment;
 import com.gfcommunity.course.gfcommunity.fragments.ProductsFragment;
 import com.gfcommunity.course.gfcommunity.fragments.RecipesFragment;
@@ -39,9 +45,9 @@ import com.gfcommunity.course.gfcommunity.recyclerView.SelectableAdapter;
 import com.gfcommunity.course.gfcommunity.recyclerView.products.ProductsAdapter;
 import com.gfcommunity.course.gfcommunity.utils.NetworkConnectedUtil;
 
-public class MainActivity extends AppCompatActivity implements ProductsAdapter.ViewHolder.ClickListener, AdapterView.OnItemClickListener, Toolbar.OnMenuItemClickListener , LoaderManager.LoaderCallbacks<Integer> {
-    private ActionMode actionMode;
-    private ActionModeCallback actionModeCallback = new ActionModeCallback();
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, ProductsAdapter.ViewHolder.ClickListener, AdapterView.OnItemClickListener , LoaderManager.LoaderCallbacks<Integer>
+{
+
     private SelectableAdapter adapter;
     private int fragmentPosition;
     private Toolbar toolbar;
@@ -51,11 +57,20 @@ public class MainActivity extends AppCompatActivity implements ProductsAdapter.V
     private int selectedProductId=0;
     private boolean selectionMode=false;
     static Context context;
+    ViewPagerAdapter viewPagerAdapter;
     private int[] tabIcons = {
-            R.mipmap.ic_launcher,
-            R.mipmap.ic_launcher,
-            R.mipmap.ic_launcher
+            R.drawable.new_24,
+            R.drawable.product_24,
+            R.drawable.recipes_24
     };
+    Menu mMenu;
+    ResetLoaderFragment resetLoaderFragment;
+    private static int lastSelectedPos = -1;
+
+    public interface ResetLoaderFragment
+    {
+        void resetNow();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,43 +78,138 @@ public class MainActivity extends AppCompatActivity implements ProductsAdapter.V
         context=this;
         setContentView(R.layout.activity_main);
 
-        fragmentPosition = getIntent().getIntExtra("fragmentPosition", 0);
+        fragmentPosition = getIntent().getIntExtra("fragmentPosition", 1);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitleTextColor(Color.WHITE);
-        toolbar.setTitle("GF Community");
-        toolbar.inflateMenu(R.menu.toolbar);
-        toolbar.setOnMenuItemClickListener(this);
+        
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleOnBackPress();
+            }
+        });
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
         viewPager.setCurrentItem(fragmentPosition); //select specific fragment
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+
+        //Adding fab
+        FloatingActionButton addFab = (FloatingActionButton)findViewById(R.id.add_fab);
+        addFab.setOnClickListener(this);
         setupTabIcons();
+    }
+
+    private void handleOnBackPress() {
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        setToolbar(menu);
-
+        if(mMenu == null)
+            mMenu = menu;
+        getMenuInflater().inflate(R.menu.toolbar, mMenu); // Inflate the menu; this adds items to the action bar if it is present.
+        setToolbar();
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
         SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         return true;
     }
 
-    private void setToolbar(Menu menu){
-        getMenuInflater().inflate(R.menu.toolbar, menu);
-        menu.findItem(R.id.action_search).setVisible(!selectionMode);
-        menu.findItem(R.id.action_share).setVisible(selectionMode);
-        menu.findItem(R.id.action_favorites).setVisible(selectionMode);
-        menu.findItem(R.id.action_edit).setVisible(selectionMode);
-        menu.findItem(R.id.action_delete).setVisible(selectionMode);
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_edit:
+                item.setChecked(true);
+                if (NetworkConnectedUtil.isNetworkAvailable(this)) {
+                    //TODO: find selected item and pass it to EditProductActivity
+                    Intent intent = new Intent(this, AddProductActivity.class);
+                    intent.putExtra("selectedProductId", selectedProductId);//send product id to init
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(this, getString(R.string.no_internet_connection_msg), Toast.LENGTH_SHORT).show();
+                }
+            return true;
+
+            case R.id.action_delete:
+                item.setChecked(true);
+                if (NetworkConnectedUtil.isNetworkAvailable(this)) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppAlertDialogStyle);
+                    builder.setTitle("Delete Product");
+                    builder.setMessage("Are you sure you want to delete product?");
+
+                    builder.setPositiveButton(getResources().getString(R.string.confirm_option), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int item) {
+                            //clicked on ok button
+                            deleteItem();// perform delete item action
+                        }
+                    });
+
+                    builder.setNegativeButton(getResources().getString(R.string.cancel_option), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int item) {
+                            //clicked on cancel button
+                            dialog.dismiss();
+                        }
+                    });
+
+                    AlertDialog dialog = builder.show();
+                    // Must call show() prior to fetching text view
+                    TextView messageView = (TextView)dialog.findViewById(android.R.id.message);
+                    messageView.setGravity(Gravity.CENTER);
+
+                } else {
+                    Toast.makeText(this, getString(R.string.no_internet_connection_msg), Toast.LENGTH_SHORT).show();
+                }
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.add_fab: //Start Add new product or recipe activity
+                //Check internet connection
+                if (NetworkConnectedUtil.isNetworkAvailable(this)) {
+                    if (viewPager.getCurrentItem() == 1) { //Add product
+                        Intent intent = new Intent(this, AddProductActivity.class);
+                        startActivity(intent);
+                    } else if (viewPager.getCurrentItem() == 2) { //Add recipe
+                        Intent intent = new Intent(this, AddRecipeActivity.class);
+                        startActivity(intent);
+                    }
+                } else {
+                    Toast.makeText(this, getString(R.string.no_internet_connection_msg), Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+    }
+
+    private void setToolbar(){
+        if(selectionMode){
+            toolbar.setTitle("");
+        }
+        else{
+            toolbar.setTitle(getString(R.string.app_name));
+        }
+        mMenu.findItem(R.id.app_icon).setVisible(true);
+        mMenu.findItem(R.id.action_search).setVisible(!selectionMode);
+        mMenu.findItem(R.id.action_share).setVisible(selectionMode);
+        mMenu.findItem(R.id.action_favorites).setVisible(selectionMode);
+        mMenu.findItem(R.id.action_edit).setVisible(selectionMode);
+        mMenu.findItem(R.id.action_delete).setVisible(selectionMode);
+        mMenu.findItem(R.id.action_navigate).setVisible(selectionMode);
 }
     private void setupTabIcons() {
         tabLayout.getTabAt(0).setIcon(tabIcons[0]);
@@ -108,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements ProductsAdapter.V
     }
 
     private void setupViewPager(ViewPager viewPager) {
-        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewPagerAdapter.addFrag(new BlankFragment(), getResources().getString(R.string.news_fragment_name));
         viewPagerAdapter.addFrag(ProductsFragment.getInstance(), getResources().getString(R.string.products_fragment_name));
         viewPagerAdapter.addFrag(new RecipesFragment(), getResources().getString(R.string.recipes_fragment_name));
@@ -122,59 +232,26 @@ public class MainActivity extends AppCompatActivity implements ProductsAdapter.V
 
 
 
+
     @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_edit:
-                item.setChecked(true);
-                if (NetworkConnectedUtil.isNetworkAvailable(this)) {
-                    //TODO: find selected item and pass it to EditProductActivity
-                    Intent intent = new Intent(this, EditProductActivity.class);
-                    intent.putExtra("selectedProductId",selectedProductId);//send product id to init
-                    startActivity(intent);
-                } else {
-                    Toast.makeText(this, getString(R.string.no_internet_connection_msg), Toast.LENGTH_SHORT).show();
-                }
-                return true;
-
-            case R.id.action_delete:
-                item.setChecked(true);
-                if (NetworkConnectedUtil.isNetworkAvailable(this)) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            if (!isFinishing()){
-                                new AlertDialog.Builder(MainActivity.this)
-                                        .setTitle("Delete Product")
-                                        .setMessage("Are you sure you want to delete product?")
-                                        .setCancelable(false)
-                                        .setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                //clicked on ok button
-                                                //TODO: delete selected item
-                                               deleteItem();
-                                            }
-                                        }).create().show();
-                            }
-                        }
-                    });
-
-                } else {
-                    Toast.makeText(this, getString(R.string.no_internet_connection_msg), Toast.LENGTH_SHORT).show();
-                }
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+    public void onAttachFragment(Fragment fragment) {
+        super.onAttachFragment(fragment);
+        resetLoaderFragment = (MainActivity.ResetLoaderFragment)viewPagerAdapter.getItem(1);
     }
 
+    /**
+     * perform delete item action
+     */
     private void deleteItem() {
+        lastSelectedPos = -1;
         Bundle b = new Bundle();
         b.putCharSequence("itemIdToDelete", selectedProductId+"");
-        getSupportLoaderManager().initLoader(loaderID, b, this).forceLoad();//Initializes delete Loader
+        Uri uri = ContentUris.withAppendedId(ProductsContentProvider.PRODUCTS_CONTENT_URI, selectedProductId);
+//        getContentResolver().delete(uri, null,null);
+//        ProductsFragment.productsAdapter.toggleSelection(selectedProductId);
+//        resetLoaderFragment.resetNow();
+        getSupportLoaderManager().restartLoader(loaderID, b, this).forceLoad();//Initializes delete Loader
+
     }
 
     @Override
@@ -184,11 +261,13 @@ public class MainActivity extends AppCompatActivity implements ProductsAdapter.V
 
     @Override
     public boolean onItemLongClicked(int position,int productID) {
-        if (actionMode == null) {
-            actionMode = startSupportActionMode(actionModeCallback);
+        if(lastSelectedPos >= 0 && lastSelectedPos != position) {
+            if(ProductsFragment.productsAdapter.isSelected(lastSelectedPos)) {
+                toggleSelection(lastSelectedPos);
+            }
         }
-
         toggleSelection(position);
+        lastSelectedPos = position;
         selectedProductId = productID;
 
         return true;
@@ -207,102 +286,33 @@ public class MainActivity extends AppCompatActivity implements ProductsAdapter.V
         int count = ProductsFragment.productsAdapter.getSelectedItemCount();
 
         if (count == 0) {
-            actionMode.finish();
+            selectionMode = false;
         } else {
-            actionMode.setTitle(String.valueOf(count));
-            actionMode.invalidate();
+            selectionMode = true;
         }
+        setToolbar();
     }
 
     @Override
     public Loader<Integer> onCreateLoader(int id, Bundle args) {
-        String itemIdToDelete=args != null ? args.getString("itemIdToDelete") :null;
+        String itemIdToDelete = args != null ? args.getString("itemIdToDelete") :null;
+        Uri uri = ContentUris.withAppendedId(ProductsContentProvider.PRODUCTS_CONTENT_URI, Integer.valueOf(itemIdToDelete));
         if(itemIdToDelete!=null){
-            return new DeleteProductLoader(this, SharingInfoContract.ProductsEntry._ID + " = " + itemIdToDelete);
+            return new DeleteProductLoader(this,uri);
         }
        return null;
     }
-
     @Override
     public void onLoadFinished(Loader<Integer> loader, Integer data) {
-
+        ProductsFragment.productsAdapter.toggleSelection(selectedProductId);
+        resetLoaderFragment.resetNow();
+//        adapter.notifyDataSetChanged();
     }
 
     @Override
     public void onLoaderReset(Loader<Integer> loader) {
 
     }
-
-    private class ActionModeCallback implements ActionMode.Callback {
-        @SuppressWarnings("unused")
-        private final String TAG = ActionModeCallback.class.getSimpleName();
-
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            mode.getMenuInflater().inflate(R.menu.toolbar, menu);
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.action_edit:
-                    item.setChecked(true);
-                    if (NetworkConnectedUtil.isNetworkAvailable(context)) {
-                        //TODO: find selected item and pass it to EditProductActivity
-                        Intent intent = new Intent(context, EditProductActivity.class);
-                        intent.putExtra("selectedProductId",selectedProductId);//send product id to init
-                        startActivity(intent);
-                    } else {
-                        Toast.makeText(context, getString(R.string.no_internet_connection_msg), Toast.LENGTH_SHORT).show();
-                    }
-                    return true;
-
-                case R.id.action_delete:
-                    item.setChecked(true);
-                    if (NetworkConnectedUtil.isNetworkAvailable(context)) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-
-                                if (!isFinishing()){
-                                    new AlertDialog.Builder(MainActivity.this)
-                                            .setTitle("Delete Product")
-                                            .setMessage("Are you sure you want to delete product?")
-                                            .setCancelable(false)
-                                            .setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                    //clicked on ok button
-                                                    //TODO: delete selected item
-                                                    deleteItem();
-                                                }
-                                            }).create().show();
-                                }
-                            }
-                        });
-
-                    } else {
-                        Toast.makeText(context, getString(R.string.no_internet_connection_msg), Toast.LENGTH_SHORT).show();
-                    }
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-            ProductsFragment.productsAdapter.clearSelection();
-            actionMode = null;
-        }
-    }
-
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();
@@ -333,4 +343,3 @@ public class MainActivity extends AppCompatActivity implements ProductsAdapter.V
         }
     }
 }
-

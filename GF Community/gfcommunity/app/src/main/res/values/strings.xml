@@ -3,9 +3,11 @@
 
     <string name="products_authority">com.gfcommunity.course.gfcommunity.data.products.ProductsContentProvider</string>
     <string name="recipes_authority">com.gfcommunity.course.gfcommunity.data.recipes.RecipesContentProvider</string>
+    <string name="text">text</string>
 
     <!-->Product strings<!-->
-    <string name="user_uploaded_text">Added by %1$s on %2$s.</string>
+    <string name="user_uploaded_with_date_text">Added by %1$s on %2$s</string>
+    <string name="user_uploaded_text">Added by %1$s</string>
     <string name="no_records">No records found</string>
     <string name="address">%1$d %2$s Street %3$s</string>
     <string name="product_name">Product name</string>
@@ -28,6 +30,7 @@
     <string name="take_photo_option">Take Photo</string>
     <string name="gallery_option">Choose from Gallery</string>
     <string name="cancel_option">Cancel</string>
+    <string name="confirm_option">Ok</string>
     <string name="products_fragment_name">Products</string>
     <string name="news_fragment_name">What\'s new</string>
     <string name="recipes_fragment_name">Recipes</string>
@@ -39,14 +42,16 @@
     <string name="product_notification_text">%1$s was added in %2$s</string>
     <string name="product_added_msg">%1$s Product is added successfully</string>
     <string name="product_saved_msg">%1$s Product is saved successfully</string>
-    <string name="add_product_image_title">Add product image</string>
+    <string name="add_product_image_title">Select product image</string>
 
 
     <!-->Recipe strings<!-->
     <string name="recipe_name">Recipe name</string>
     <string name="ingredients_title">Recipe ingredients</string>
     <string name="select_recipe_category">Select a recipes category</string>
+    <string name="recipes_category">Recipes category</string>
     <string name="ingredients">Ingredients</string>
+    <string name="ingredient">Ingredient</string>
     <string name="instructions">Instructions</string>
     <string name="recipe_details">More details</string>
     <string name="preparation_time">Preparation time</string>
@@ -58,8 +63,12 @@
     <string name="recipe_added_msg">%1$s Recipe is added successfully</string>
     <string name="add_recipe_image_title">Add recipe image</string>
     <string name="difficulty_preparation">Difficulty preparation</string>
+    <string name="preparation_time_details">Preparation time: %1$s</string>
+    <string name="diners_number_details">Diners number: %1$d</string>
+    <string name="difficulty_preparation_details">Difficulty preparation: %1$s</string>
+    <string name="add_ingredient">Add ingredient</string>
 
-
+    <string name="tbd">TBD</string>
     <!-->Israel cities array<!-->
     <string-array name="cities_array">
         <item>Acrea</item>
@@ -176,6 +185,8 @@
 
     <string name="share">Share</string>
     <string name="add_favorites">Add favorites</string>
+    <string name="navigate">Navigate</string>
     <string name="action_delete">Delete</string>
     <string name="action_edit">Edit</string>
+    <string name="search">Search</string>
 </resources>

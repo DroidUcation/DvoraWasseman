@@ -12,11 +12,8 @@ import com.gfcommunity.course.gfcommunity.data.recipes.RecipesContentProvider;
  * Insert recipe by asyncTaskLoader
  */
 public class InsertRecipeLoader extends AsyncTaskLoader<Uri> {
-    ContentValues values;
-    Context context;
-    public InsertRecipeLoader(Context context) {
-        super(context);
-    }
+    private ContentValues values;
+    private Context context;
 
     public InsertRecipeLoader(Context context, ContentValues values) {
         super(context);

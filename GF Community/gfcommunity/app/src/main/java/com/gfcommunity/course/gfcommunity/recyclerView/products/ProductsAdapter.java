@@ -3,6 +3,8 @@ package com.gfcommunity.course.gfcommunity.recyclerView.products;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -10,6 +12,7 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -24,19 +27,18 @@ import java.sql.Timestamp;
 import java.util.List;
 
 
-
 /**
  * Provide views to RecyclerView with data from productList.
  */
 public class ProductsAdapter extends SelectableAdapter<ProductsAdapter.ViewHolder> {
     static Cursor cursor;
     static Context context;
-    private List<Product> mProducts;
     private ViewHolder.ClickListener clickListener;
 
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener , View.OnLongClickListener {
         private TextView title, subTitle, text;
+        private RelativeLayout relativeLayout;
         private CircularImageView productImg;
         private static SparseArray<Product> productsMap = new SparseArray<Product>();//Products map mapped by product ID
         private ClickListener listener;
@@ -44,6 +46,7 @@ public class ProductsAdapter extends SelectableAdapter<ProductsAdapter.ViewHolde
         public ViewHolder(View view, ClickListener listener) {
             super(view);
             title = (TextView) view.findViewById(R.id.row_title);
+            relativeLayout = (RelativeLayout)view.findViewById(R.id.listRowCard);
             subTitle = (TextView) view.findViewById(R.id.row_subtitle);
             text = (TextView) view.findViewById(R.id.row_text);
             productImg = (CircularImageView) view.findViewById(R.id.row_img);
@@ -71,16 +74,17 @@ public class ProductsAdapter extends SelectableAdapter<ProductsAdapter.ViewHolde
 
             Intent intent = new Intent(context, ProductDetailsActivity.class);
             intent.putExtra("selected_item",product); //Pass selected product to ProductDetailsActivity
-
             context.startActivity(intent);
         }
 
         @Override
         public boolean onLongClick(View v) {
             if (listener != null) {
+
                 int position = this.getAdapterPosition();
                 cursor.moveToPosition(position);
                 int productID = cursor.getInt(cursor.getColumnIndex(SharingInfoContract.ProductsEntry._ID));
+                //v.findViewById(R.id.listRowCard).setBackgroundColor(Color.BLUE);
                 return listener.onItemLongClicked(position,productID);
             }
 
@@ -159,16 +163,22 @@ public class ProductsAdapter extends SelectableAdapter<ProductsAdapter.ViewHolde
 
         //Set product image by Glide
         String productImgPath = cursor.getString(cursor.getColumnIndex(SharingInfoContract.ProductsEntry.IMAGE_URI));
-        //String productImgPath = "https://firebasestorage.googleapis.com/v0/b/gf-community.appspot.com/o/images%2Fproduct_img14676540477212278?alt=media&token=d6a5d69a-b644-410d-89d8-14bfff807833";
         if(!TextUtils.isEmpty(productImgPath)) {
             Glide.with(context).load(productImgPath)
                     .dontAnimate()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .placeholder(R.xml.progress) //TODO: put product icon
-                    .error(R.drawable.filter) //TODO: put product icon
+                    .placeholder(R.drawable.product_circle_img)
+                    .error(R.drawable.product_circle_img)
                     .into(holder.productImg);
+        } else {
+            holder.productImg.setImageResource(R.drawable.product_circle_img);
         }
-
+        if(isSelected(position)){
+            holder.relativeLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.greenAppColor));
+        }
+        else{
+            holder.relativeLayout.setBackgroundColor(Color.TRANSPARENT);
+        }
     }
 
     @Override

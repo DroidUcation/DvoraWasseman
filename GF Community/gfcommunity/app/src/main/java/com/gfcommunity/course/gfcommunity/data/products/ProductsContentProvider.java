@@ -42,11 +42,51 @@ public class ProductsContentProvider extends ContentProvider {
         SharingInfoDatabaseHelper dbHelper= new SharingInfoDatabaseHelper(context);
         //Create a write table database which will trigger its creation if it doesn't already exist.
         db = dbHelper.getWritableDatabase();
-
+        insertFakeData(db);
         return (db == null)? false:true;
     }
 
+    private void insertFakeData(SQLiteDatabase db) {
+        ContentValues values = new ContentValues();
+        values.put(SharingInfoContract.ProductsEntry.STORE_NAME, "Super Sal Market");
+        values.put(SharingInfoContract.ProductsEntry.PRODUCT_NAME, "Gluten free cookies");
+        values.put(SharingInfoContract.ProductsEntry.HOUSE_NO, 25);
+        values.put(SharingInfoContract.ProductsEntry.STREET, "Herzel");
+        values.put(SharingInfoContract.ProductsEntry.CITY, "Eilat");
+        values.put(SharingInfoContract.ProductsEntry.PHONE, "0526984458");
+        values.put(SharingInfoContract.ProductsEntry.IMAGE_URI, "http://www.lance.com/assets/img/temp/snacks/gf_pb_8pk_crtn.png?1431482040");
+        db.insert(SharingInfoContract.ProductsEntry.TABLE_NAME,null, values);
 
+        values = new ContentValues();
+        values.put(SharingInfoContract.ProductsEntry.STORE_NAME, "Teva Banachala");
+        values.put(SharingInfoContract.ProductsEntry.PRODUCT_NAME, "Gluten free pasta");
+        values.put(SharingInfoContract.ProductsEntry.HOUSE_NO, 98);
+        values.put(SharingInfoContract.ProductsEntry.STREET, "Nakhalat Yitskhak");
+        values.put(SharingInfoContract.ProductsEntry.CITY, "Jerusalem");
+        values.put(SharingInfoContract.ProductsEntry.PHONE, "02-696-7474");
+        values.put(SharingInfoContract.ProductsEntry.IMAGE_URI, "http://makingourlifematter.com/wp-content/uploads/2014/02/gf-family-hp.png");
+        db.insert(SharingInfoContract.ProductsEntry.TABLE_NAME,null, values);
+
+        values = new ContentValues();
+        values.put(SharingInfoContract.ProductsEntry.STORE_NAME, "Nizat haduvdevan");
+        values.put(SharingInfoContract.ProductsEntry.PRODUCT_NAME, "Gluten free crispy");
+        values.put(SharingInfoContract.ProductsEntry.HOUSE_NO, 58);
+        values.put(SharingInfoContract.ProductsEntry.STREET, "Ibn Gabirol");
+        values.put(SharingInfoContract.ProductsEntry.CITY, "Tel aviv");
+        values.put(SharingInfoContract.ProductsEntry.PHONE, "03-696-5174");
+        values.put(SharingInfoContract.ProductsEntry.IMAGE_URI,"http://www.miltonsbaking.com/assets/Uploads/GlutenFreeSeaSaltLARGE.jpg");
+        db.insert(SharingInfoContract.ProductsEntry.TABLE_NAME,null, values);
+
+        values = new ContentValues();
+        values.put(SharingInfoContract.ProductsEntry.STORE_NAME, "Shkedia");
+        values.put(SharingInfoContract.ProductsEntry.PRODUCT_NAME, "Gluten free kornfleks");
+        values.put(SharingInfoContract.ProductsEntry.HOUSE_NO, 56);
+        values.put(SharingInfoContract.ProductsEntry.STREET, "Katzenelson");
+        values.put(SharingInfoContract.ProductsEntry.CITY, "Ramat gan");
+        values.put(SharingInfoContract.ProductsEntry.PHONE, "03-731-9958");
+        values.put(SharingInfoContract.ProductsEntry.IMAGE_URI,"https://nyoobserver.files.wordpress.com/2015/09/screen-shot-2015-09-22-at-11-02-05-am-e1442935619503.png?w=242&h=300");
+        db.insert(SharingInfoContract.ProductsEntry.TABLE_NAME,null, values);
+    }
     /**
      * Select product/s according to URI
      */

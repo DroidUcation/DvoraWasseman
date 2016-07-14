@@ -23,18 +23,15 @@ public class Product implements Serializable{
 
     public Product(){}
 
-    public Product(String productName, String storeName, int image, String city, int hoseNum, String street, String storeUrl, String phone, String comment, String userID, Timestamp createdAt, String imgUri) {
+    public Product(String productName, int image, Timestamp createdAt, String userID, String comment, String phone, String storeName, String storeUrl, String imgUri) {
         this.productName = productName;
-        this.storeName = storeName;
         this.image = image;
-        this.city = city;
-        this.hoseNum = hoseNum;
-        this.street = street;
-        this.storeUrl = storeUrl;
-        this.phone = phone;
-        this.comment = comment;
-        this.userID = userID;
         this.createdAt = createdAt;
+        this.userID = userID;
+        this.comment = comment;
+        this.phone = phone;
+        this.storeName = storeName;
+        this.storeUrl = storeUrl;
         this.imgUri = imgUri;
     }
 

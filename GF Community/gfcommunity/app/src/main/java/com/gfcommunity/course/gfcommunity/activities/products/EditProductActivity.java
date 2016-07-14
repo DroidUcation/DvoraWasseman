@@ -83,16 +83,16 @@ public class EditProductActivity extends AppCompatActivity implements LoaderMana
 
         Intent intent = getIntent();
         selectedProductId = intent.getStringExtra("selectedProductId");
-        if(selectedProductId!=null){
+        if (selectedProductId != null) {
             Uri _uri = ContentUris.withAppendedId(ProductsContentProvider.PRODUCTS_CONTENT_URI, Long.valueOf(selectedProductId));
             Cursor cursor = this.getContentResolver().query(_uri, null, null, null, null);
-            if(cursor != null && cursor.moveToFirst()) {
+            if (cursor != null && cursor.moveToFirst()) {
                 Product product = ProductsAdapter.setProductValues(cursor);
 
-                String city=product.getCity();
-                int indexCity=0;
-                for (; indexCity<cityList.length ;indexCity++){
-                    if(cityList[indexCity]==city)
+                String city = product.getCity();
+                int indexCity = 0;
+                for (; indexCity < cityList.length; indexCity++) {
+                    if (cityList[indexCity] == city)
                         break;
                 }
                 citiesSpinner.setSelection(indexCity);
@@ -101,14 +101,12 @@ public class EditProductActivity extends AppCompatActivity implements LoaderMana
                 commentEditTxt.setText(product.getComment());
 
 
-
-
                 String productName = product.getProductName();
                 productNameEditTxt.setText(!TextUtils.isEmpty(productName) ? productName : "");
 
 
                 String imgUrl = product.getImgUrl();
-                if(!TextUtils.isEmpty(imgUrl)){
+                if (!TextUtils.isEmpty(imgUrl)) {
                     //imgUrl = "https://firebasestorage.googleapis.com/v0/b/gf-community.appspot.com/o/images%2Fproduct_img14676540477212278?alt=media&token=d6a5d69a-b644-410d-89d8-14bfff807833";
                     Glide.with(this).load(imgUrl)
                             .dontAnimate()
@@ -123,9 +121,9 @@ public class EditProductActivity extends AppCompatActivity implements LoaderMana
                 storeNameEditTxt.setText(!TextUtils.isEmpty(storeName) ? storeName : "");
                 storeUrlEditTxt.setText("");
                 String storeUrl = product.getStoreUrl();
-                if(!TextUtils.isEmpty(storeUrl)) {
+                if (!TextUtils.isEmpty(storeUrl)) {
                     storeUrl = storeUrl.trim();
-                    String linkedText = String.format("<a href=\"%s\">%s</a>", "http://"+storeUrl, storeUrl);
+                    String linkedText = String.format("<a href=\"%s\">%s</a>", "http://" + storeUrl, storeUrl);
                     storeUrlEditTxt.setText(Html.fromHtml(linkedText));
                     Linkify.addLinks(storeUrlEditTxt, Linkify.WEB_URLS);
                 }
@@ -180,9 +178,6 @@ public class EditProductActivity extends AppCompatActivity implements LoaderMana
         dataAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);// Drop down layout style - list view with radio button
         citiesSpinner.setAdapter(dataAdapter);
         citiesSpinner.setSelection(dataAdapter.getCount());// show hint
-
-
-
     }
 
     @Override
@@ -307,7 +302,7 @@ public class EditProductActivity extends AppCompatActivity implements LoaderMana
                 selectedImage = Uri.fromFile(f);
 
             } else if (requestCode == 2) {
-                 selectedImage = data.getData();
+                selectedImage = data.getData();
             }
 
             if(!TextUtils.isEmpty(selectedImage.toString())){

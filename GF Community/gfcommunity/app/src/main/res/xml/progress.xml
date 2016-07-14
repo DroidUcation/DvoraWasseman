@@ -13,8 +13,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         <gradient android:type="sweep" android:useLevel="false"
-            android:startColor="#447a29"
-            android:endColor="#44bf29"
+            android:startColor="@color/pinkAppColor"
+            android:endColor="@color/greenAppColor"
             android:angle="0"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />

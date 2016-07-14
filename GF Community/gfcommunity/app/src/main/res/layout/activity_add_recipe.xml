@@ -1,111 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/ScrollViewAddRecipe"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/ScrollViewAddProduct"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/margin"
-    android:layout_marginTop="@dimen/margin"
-    android:layout_marginLeft="@dimen/margin"
-    android:layout_marginRight="@dimen/margin"
     android:scrollbars="vertical">
     <LinearLayout
         android:layout_width="fill_parent"
-        android:orientation="vertical"
-        android:layout_height="fill_parent">
-
-        <Button
-            android:id="@+id/select_recipe_img_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Select recipe image" />
-
-        <ImageView
-            android:id="@+id/recipe_img"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/star_on"
-            android:scaleType="fitStart"
-            android:adjustViewBounds="true" />
-
-        <EditText
-            android:id="@+id/recipe_name_edit_text"
-            android:layout_height="wrap_content"
-            android:hint="@string/recipe_name"
-            android:inputType="text"
-            android:layout_width="fill_parent">
-        </EditText>
-
-        <Spinner
-            android:spinnerMode="dropdown"
-            android:id="@+id/recipe_categories_spinner"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <FrameLayout
+            android:id="@+id/recipe_img_frame"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/recipe_categories_array"
-            android:hint="@string/select_recipe_category"/>
+            android:layout_height="wrap_content">
 
-        <EditText
-            android:id="@+id/ingredients"
-            android:layout_height="wrap_content"
-            android:hint="@string/ingredients"
-            android:inputType="text"
-            android:layout_width="fill_parent">
-        </EditText>
+            <ImageView
+                android:id="@+id/recipe_img"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/recipes"
+                android:scaleType="centerCrop"
+                android:adjustViewBounds="true"/>
 
-        <EditText
-            android:id="@+id/instructions"
-            android:layout_height="wrap_content"
-            android:hint="@string/instructions"
-            android:inputType="text"
-            android:layout_width="fill_parent">
-        </EditText>
-
-        <TextView
-            android:id="@+id/recipe_more_details_title"
-            android:layout_marginTop="@dimen/margin"
-            android:layout_marginBottom="@dimen/margin"
+        </FrameLayout>
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/select_recipe_img_btn"
+            android:contentDescription="@string/add_recipe_image_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/recipe_details"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large">
-        </TextView>
+            android:tint="@android:color/white"
+            android:src="@drawable/ic_add_a_photo_white_24dp"
+            app:backgroundTint="@color/pinkAppColor"
+            android:layout_marginRight="@dimen/margin"
+            android:layout_marginTop="-45dp"
+            android:elevation="4dp"
+            android:layout_gravity="right"/>
 
-        <EditText
-            android:id="@+id/preparation_time_edit_txt"
-            android:layout_height="wrap_content"
-            android:hint="@string/preparation_time"
-            android:inputType="text"
-            android:layout_width="fill_parent">
-        </EditText>
-
-        <EditText
-            android:id="@+id/diners_number_edit_txt"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/diners_number"
-            android:inputType="number" >
-        </EditText>
-
-        <Spinner
-            android:spinnerMode="dropdown"
-            android:id="@+id/difficulty_preparation_spinner"
+        <LinearLayout
+            android:id="@+id/recipe_details_layout"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/difficulty_recipe_preparation_array"
-            android:hint="@string/select_difficulty_preparation"/>
-        <EditText
-            android:id="@+id/recipe_story_edit_txt"
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent"
-            android:hint="@string/recipe_story"
-            android:inputType="textMultiLine">
-        </EditText>
+            android:orientation="vertical"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin"
+            android:layout_marginRight="@dimen/margin">
 
-        <Button
-            android:id="@+id/add_recipe_btn"
-            android:layout_height="wrap_content"
-            android:text="@string/add_recipe"
-            android:layout_width="fill_parent">
-        </Button>
+            <EditText
+                android:id="@+id/recipe_name_edit_text"
+                android:layout_height="wrap_content"
+                android:hint="@string/recipe_name"
+                android:inputType="text"
+                android:layout_width="fill_parent"
+                android:backgroundTint="@color/greenAppColor">
+            </EditText>
+
+            <Spinner
+                android:spinnerMode="dropdown"
+                android:id="@+id/recipes_categories_spinner"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/recipe_categories_array"
+                android:hint="@string/select_recipe_category"/>
+
+            <LinearLayout
+                android:id="@+id/ingredients_layout"
+                android:layout_width="fill_parent"
+                android:orientation="vertical"
+                android:layout_height="fill_parent">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="fill_parent">
+                <ImageView
+                    android:id="@+id/add_ingredient_img"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:src="@android:drawable/ic_input_add"
+                    android:tint="@color/pinkAppColor"
+                    android:layout_gravity="top"
+                    android:contentDescription="@string/add_ingredient" />
+                <EditText
+                    android:id="@+id/ingredients"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/ingredient"
+                    android:inputType="text"
+                    android:layout_width="fill_parent">
+                </EditText>
+            </LinearLayout>
+        </LinearLayout>
+
+            <EditText
+                android:id="@+id/instructions"
+                android:layout_height="wrap_content"
+                android:hint="@string/instructions"
+                android:inputType="text"
+                android:layout_width="fill_parent">
+            </EditText>
+
+            <TextView
+                android:id="@+id/recipe_more_details_title"
+                android:layout_marginTop="@dimen/margin"
+                android:layout_marginBottom="@dimen/margin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/recipe_details"
+                android:textColor="@color/greenAppColor"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Large">
+            </TextView>
+
+            <EditText
+                android:id="@+id/preparation_time_edit_txt"
+                android:layout_height="wrap_content"
+                android:hint="@string/preparation_time"
+                android:inputType="text"
+                android:layout_width="fill_parent">
+            </EditText>
+
+            <EditText
+                android:id="@+id/diners_number_edit_txt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/diners_number"
+                android:inputType="number" >
+            </EditText>
+
+            <Spinner
+                android:spinnerMode="dropdown"
+                android:id="@+id/difficulty_preparation_spinner"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/difficulty_recipe_preparation_array"
+                android:hint="@string/select_difficulty_preparation"/>
+            <EditText
+                android:id="@+id/recipe_story_edit_txt"
+                android:layout_height="wrap_content"
+                android:layout_width="fill_parent"
+                android:hint="@string/recipe_story"
+                android:inputType="textMultiLine">
+            </EditText>
+
+            <Button
+                android:id="@+id/add_recipe_btn"
+                android:layout_height="wrap_content"
+                android:text="@string/add_recipe"
+                android:layout_width="140dp"
+                android:layout_gravity="center"
+                android:background="@drawable/add_button_shape"
+                android:layout_marginTop="@dimen/add_recipe_or_product_button_margin_top"
+                android:textColor="@android:color/white">
+            </Button>
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

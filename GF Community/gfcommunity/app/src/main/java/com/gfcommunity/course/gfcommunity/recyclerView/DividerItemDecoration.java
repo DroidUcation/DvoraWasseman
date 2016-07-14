@@ -1,5 +1,7 @@
 package com.gfcommunity.course.gfcommunity.recyclerView;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -30,6 +32,13 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration{
 
     public DividerItemDecoration(Fragment context, int orientation) {
         final TypedArray a = context.getActivity().obtainStyledAttributes(ATTRS);
+        mDivider = a.getDrawable(0);
+        a.recycle();
+        setOrientation(orientation);
+    }
+
+    public DividerItemDecoration(Context context, int orientation) {
+        final TypedArray a = context.obtainStyledAttributes(ATTRS);
         mDivider = a.getDrawable(0);
         a.recycle();
         setOrientation(orientation);

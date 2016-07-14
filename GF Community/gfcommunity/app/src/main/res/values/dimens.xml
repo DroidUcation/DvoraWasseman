@@ -6,7 +6,7 @@
     <dimen name="relative_layout_padding">64dp</dimen>
     <dimen name="scroll_view_margin">64dp</dimen>
     <dimen name="relative_layout_margin_list_row">10dp</dimen>
-    <dimen name="relative_layout_height_list_row">90dp</dimen>
+    <dimen name="relative_layout_height_list_row">80dp</dimen>
     <dimen name="text_view_padding">10dp</dimen>
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
@@ -21,4 +21,9 @@
     <dimen name="fab_margin">16dp</dimen>
     <!-- recycleView list row -->
     <dimen name="circle_image_view_size">48dp</dimen>
+    <dimen name="filter_image_view_margin">12dp</dimen>
+    <dimen name="add_recipe_or_product_button_margin_top">36dp</dimen>
+    <dimen name="details_prop_margin_bottom">8dp</dimen>
+    <dimen name="details_prop_without_icon_margin_left">24dp</dimen>
+    <dimen name="details_prop_with_icon_margin_left">8dp</dimen>
 </resources>

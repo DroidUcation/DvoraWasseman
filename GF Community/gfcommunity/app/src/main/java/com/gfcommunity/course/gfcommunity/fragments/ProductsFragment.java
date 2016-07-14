@@ -3,6 +3,7 @@ package com.gfcommunity.course.gfcommunity.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gfcommunity.course.gfcommunity.R;
+import com.gfcommunity.course.gfcommunity.activities.MainActivity;
 import com.gfcommunity.course.gfcommunity.activities.products.AddProductActivity;
 import com.gfcommunity.course.gfcommunity.data.products.ProductsContentProvider;
 import com.gfcommunity.course.gfcommunity.data.SharingInfoContract;
@@ -32,11 +34,11 @@ import com.gfcommunity.course.gfcommunity.utils.NetworkConnectedUtil;
 import com.gfcommunity.course.gfcommunity.utils.SpinnerAdapter;
 
 
-public class ProductsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener , AdapterView.OnItemSelectedListener{
+public class ProductsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener , AdapterView.OnItemSelectedListener
+        , MainActivity.ResetLoaderFragment {
     private int loaderID = 0; // Identifies a particular Loader being used in this component
     public static ProductsAdapter productsAdapter;
     private RecyclerView recyclerView;
-    private ImageView noRecordsImg;
     private ProgressBar progressBar;
     private String selectedCity;
     private Spinner citiesSpinner;
@@ -57,19 +59,14 @@ public class ProductsFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         //RecyclerView
-         recyclerView = (RecyclerView) view.findViewById(R.id.products_recycler_view);
+        recyclerView = (RecyclerView) view.findViewById(R.id.products_recycler_view);
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
 
-        noRecordsImg = (ImageView) view.findViewById(R.id.no_results_img);
         progressBar = (ProgressBar)view.findViewById(R.id.progress_bar);
-
-        //Adding fab
-        FloatingActionButton addFab = (FloatingActionButton)view.findViewById(R.id.add_fab);
-        addFab.setOnClickListener(this);
 
         //filter imageView
         filterCity = (ImageView)view.findViewById(R.id.filter_city);
@@ -99,6 +96,7 @@ public class ProductsFragment extends Fragment implements LoaderManager.LoaderCa
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.context = getContext();
+        setHasOptionsMenu(true);
         getLoaderManager().initLoader(loaderID, null, this); //Initializes the CursorLoader
     }
 
@@ -125,11 +123,11 @@ public class ProductsFragment extends Fragment implements LoaderManager.LoaderCa
             productsAdapter = new ProductsAdapter(context, cursor, (ProductsAdapter.ViewHolder.ClickListener) getActivity());
             recyclerView.setAdapter(productsAdapter);
             recyclerView.setVisibility(View.VISIBLE);
-            noRecordsImg.setVisibility(View.GONE);
+            this.getView().setBackgroundColor(Color.TRANSPARENT);
         //Set empty state for RecyclerView if no products found
         } else {
             recyclerView.setVisibility(View.GONE);
-            noRecordsImg.setVisibility(View.VISIBLE);
+            this.getView().setBackgroundResource(R.drawable.no_records);
         }
 
     }
@@ -195,4 +193,9 @@ public class ProductsFragment extends Fragment implements LoaderManager.LoaderCa
         return new ProductsFragment();
     }
 
+    @Override
+    public void resetNow() {
+        getLoaderManager().restartLoader(loaderID, null, this);
+        //Toast.makeText(context, "dsfdsfdsfdsf", Toast.LENGTH_SHORT).show();
+    }
 }

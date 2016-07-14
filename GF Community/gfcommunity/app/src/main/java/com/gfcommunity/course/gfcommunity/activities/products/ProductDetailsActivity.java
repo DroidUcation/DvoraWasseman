@@ -10,6 +10,7 @@ import android.text.util.Linkify;
 
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -21,6 +22,7 @@ import com.gfcommunity.course.gfcommunity.utils.DateFormatUtil;
 public class ProductDetailsActivity extends AppCompatActivity implements View.OnClickListener {
     private Product product;
     private String storePhone;
+    private ImageView storePhoneImg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +31,7 @@ public class ProductDetailsActivity extends AppCompatActivity implements View.On
 
         product = (Product) getIntent().getSerializableExtra("selected_item"); //get current product passed from ProductsAdapter
 
-        ImageView storePhoneImg = (ImageView) findViewById(R.id.store_phone_img);
+        storePhoneImg = (ImageView) findViewById(R.id.store_phone_img);
         storePhoneImg.setOnClickListener(this);
 
         setProductValues(); //Set product details in the textViews
@@ -46,12 +48,11 @@ public class ProductDetailsActivity extends AppCompatActivity implements View.On
         ImageView productImg = (ImageView) findViewById(R.id.product_img);
         String imgUrl = product.getImgUrl();
         if(!TextUtils.isEmpty(imgUrl)){
-            //imgUrl = "https://firebasestorage.googleapis.com/v0/b/gf-community.appspot.com/o/images%2Fproduct_img14676540477212278?alt=media&token=d6a5d69a-b644-410d-89d8-14bfff807833";
             Glide.with(this).load(imgUrl)
                     .dontAnimate()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .placeholder(R.xml.progress) //TODO: put loading icon
-                    .error(R.drawable.filter) //TODO: put product icon
+                    .placeholder(R.drawable.products)
+                    .error(R.drawable.products)
                     .into(productImg);
         }
 
@@ -59,13 +60,20 @@ public class ProductDetailsActivity extends AppCompatActivity implements View.On
         String storeName = product.getStoreName();
         storeNameTxt.setText(!TextUtils.isEmpty(storeName) ? storeName : "");
 
-        TextView storeAddressTxt = (TextView) findViewById(R.id.address_txt);
 
-        String storeAddress = String.format(this.getResources().getString(R.string.address),
+        TextView storeAddressTxt = (TextView) findViewById(R.id.address_txt);
+       String storeAddress = String.format(this.getResources().getString(R.string.address),
                  product.getHoseNum(),
                  product.getStreet(),
         product.getCity());
-        storeAddressTxt.setText(!TextUtils.isEmpty(storeAddress) ? storeAddress : "");
+
+        if(!TextUtils.isEmpty(storeAddress)) {
+            storeAddressTxt.setText(storeAddress);
+		} else {
+            LinearLayout addressLayout = (LinearLayout) findViewById(R.id.store_address_layout);
+            addressLayout.setVisibility(View.GONE);
+        }
+
 
         TextView storeUrlTxt = (TextView) findViewById(R.id.store_url_txt);
         storeUrlTxt.setText("");
@@ -75,20 +83,34 @@ public class ProductDetailsActivity extends AppCompatActivity implements View.On
             String linkedText = String.format("<a href=\"%s\">%s</a>", "http://"+storeUrl, storeUrl);
             storeUrlTxt.setText(Html.fromHtml(linkedText));
             Linkify.addLinks(storeUrlTxt, Linkify.WEB_URLS);
+        } else {
+            storeUrlTxt.setVisibility(View.GONE);
         }
 
         TextView store_phone_txt = (TextView) findViewById(R.id.store_phone_txt);
         storePhone = product.getPhone();
-        store_phone_txt.setText(!TextUtils.isEmpty(storePhone) ? storePhone : "");
+        if(!TextUtils.isEmpty(storePhone)) {
+            store_phone_txt.setText(storePhone);
+        }else {
+            LinearLayout phoneLayout = (LinearLayout) findViewById(R.id.store_phone_layout);
+            phoneLayout.setVisibility(View.GONE);
+        }
 
         TextView productCommentTxt = (TextView) findViewById(R.id.product_comment_txt);
         String comment = product.getComment();
-        productCommentTxt.setText(!TextUtils.isEmpty(comment) ? comment : "");
+        if(!TextUtils.isEmpty(comment)) {
+            productCommentTxt.setText(comment);
+        }else {
+            productCommentTxt.setVisibility(View.GONE);
+        }
+
 
         TextView productUserUploadedTxt = (TextView) findViewById(R.id.product_user_uploaded_txt);
         String productUserUploadedDate = DateFormatUtil.DATE_FORMAT_DDMMYYYY.format(product.getCreatedAt()).toString();
         //TODO: set user name
-        String productUserUploaded = String.format(getResources().getString(R.string.user_uploaded_text), "user name", productUserUploadedDate);
+        String productUserUploaded = String.format(getResources().getString(R.string.user_uploaded_with_date_text),
+                                     !TextUtils.isEmpty(product.getUserID()) ? "user name" : getString(R.string.app_name),
+                                      productUserUploadedDate);
         productUserUploadedTxt.setText(!TextUtils.isEmpty(productUserUploaded) ? productUserUploaded : "");
     }
 
