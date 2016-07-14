@@ -1,4 +1,4 @@
-package com.gfcommunity.course.gfcommunity.loaders;
+package com.gfcommunity.course.gfcommunity.loaders.recipe;
 
 import android.content.ContentValues;
 import android.content.Context;

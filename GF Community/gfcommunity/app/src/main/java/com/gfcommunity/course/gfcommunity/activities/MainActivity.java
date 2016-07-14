@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -15,12 +16,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
+import android.support.v4.view.MenuItemCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,38 +34,35 @@ import java.util.List;
 import android.support.v7.widget.SearchView;
 import com.gfcommunity.course.gfcommunity.R;
 import com.gfcommunity.course.gfcommunity.activities.products.AddProductActivity;
-import com.gfcommunity.course.gfcommunity.activities.products.EditProductActivity;
 import com.gfcommunity.course.gfcommunity.activities.recipes.AddRecipeActivity;
-import com.gfcommunity.course.gfcommunity.data.SharingInfoContract;
 import com.gfcommunity.course.gfcommunity.data.products.ProductsContentProvider;
 import com.gfcommunity.course.gfcommunity.fragments.BlankFragment;
 import com.gfcommunity.course.gfcommunity.fragments.ProductsFragment;
 import com.gfcommunity.course.gfcommunity.fragments.RecipesFragment;
-import com.gfcommunity.course.gfcommunity.loaders.DeleteProductLoader;
+import com.gfcommunity.course.gfcommunity.loaders.DeleteLoader;
 import com.gfcommunity.course.gfcommunity.recyclerView.SelectableAdapter;
 import com.gfcommunity.course.gfcommunity.recyclerView.products.ProductsAdapter;
 import com.gfcommunity.course.gfcommunity.utils.NetworkConnectedUtil;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, ProductsAdapter.ViewHolder.ClickListener, AdapterView.OnItemClickListener , LoaderManager.LoaderCallbacks<Integer>
 {
-
     private SelectableAdapter adapter;
     private int fragmentPosition;
     private Toolbar toolbar;
     private TabLayout tabLayout;
-    private int loaderID = 1;//Insert products loader ID
+    private int loaderID = 1;//Delete products loader ID
     private ViewPager viewPager;
     private int selectedProductId=0;
     private boolean selectionMode=false;
     static Context context;
-    ViewPagerAdapter viewPagerAdapter;
+    private ViewPagerAdapter viewPagerAdapter;
     private int[] tabIcons = {
             R.drawable.new_24,
             R.drawable.product_24,
             R.drawable.recipes_24
     };
-    Menu mMenu;
-    ResetLoaderFragment resetLoaderFragment;
+    private Menu mMenu;
+    private ResetLoaderFragment resetLoaderFragment;
     private static int lastSelectedPos = -1;
 
     public interface ResetLoaderFragment
@@ -77,16 +75,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         context=this;
         setContentView(R.layout.activity_main);
-
         fragmentPosition = getIntent().getIntExtra("fragmentPosition", 1);
-
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
+        params.setScrollFlags(0);  // clear all scroll flags
         toolbar.setTitleTextColor(Color.WHITE);
-        
         setSupportActionBar(toolbar);
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-//        getSupportActionBar().setDisplayShowHomeEnabled(true);
-
         toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,10 +91,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
         viewPager.setCurrentItem(fragmentPosition); //select specific fragment
-
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
-
         //Adding fab
         FloatingActionButton addFab = (FloatingActionButton)findViewById(R.id.add_fab);
         addFab.setOnClickListener(this);
@@ -108,12 +100,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void handleOnBackPress() {
+        if(ProductsFragment.productsAdapter.isSelected(lastSelectedPos)) {
+            toggleSelection(lastSelectedPos);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        lastSelectedPos = -1;
+        selectionMode = false;
+        invalidateOptionsMenu();//Declare that the options menu has changed, so should be recreated. The onCreateOptionsMenu(Menu) method will be called the next time it needs to be displayed
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if(mMenu == null)
+        if(mMenu == null) {
             mMenu = menu;
+        }
         getMenuInflater().inflate(R.menu.toolbar, mMenu); // Inflate the menu; this adds items to the action bar if it is present.
         setToolbar();
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
@@ -122,14 +126,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return true;
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_edit:
                 item.setChecked(true);
                 if (NetworkConnectedUtil.isNetworkAvailable(this)) {
-                    //TODO: find selected item and pass it to EditProductActivity
+                    //TODO: find selected item and pass it to AddProductActivity
                     Intent intent = new Intent(this, AddProductActivity.class);
                     intent.putExtra("selectedProductId", selectedProductId);//send product id to init
                     startActivity(intent);
@@ -142,8 +145,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 item.setChecked(true);
                 if (NetworkConnectedUtil.isNetworkAvailable(this)) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppAlertDialogStyle);
-                    builder.setTitle("Delete Product");
-                    builder.setMessage("Are you sure you want to delete product?");
+                    builder.setTitle(getResources().getString(R.string.delete_product));
+                    builder.setMessage(getResources().getString(R.string.dialog_msg));
 
                     builder.setPositiveButton(getResources().getString(R.string.confirm_option), new DialogInterface.OnClickListener() {
                         @Override
@@ -203,7 +206,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         else{
             toolbar.setTitle(getString(R.string.app_name));
         }
-        mMenu.findItem(R.id.app_icon).setVisible(true);
         mMenu.findItem(R.id.action_search).setVisible(!selectionMode);
         mMenu.findItem(R.id.action_share).setVisible(selectionMode);
         mMenu.findItem(R.id.action_favorites).setVisible(selectionMode);
@@ -243,13 +245,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * perform delete item action
      */
     private void deleteItem() {
-        lastSelectedPos = -1;
         Bundle b = new Bundle();
         b.putCharSequence("itemIdToDelete", selectedProductId+"");
-        Uri uri = ContentUris.withAppendedId(ProductsContentProvider.PRODUCTS_CONTENT_URI, selectedProductId);
-//        getContentResolver().delete(uri, null,null);
-//        ProductsFragment.productsAdapter.toggleSelection(selectedProductId);
-//        resetLoaderFragment.resetNow();
         getSupportLoaderManager().restartLoader(loaderID, b, this).forceLoad();//Initializes delete Loader
 
     }
@@ -275,7 +272,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /**
      * Toggle the selection state of an item.
-     * <p/>
      * If the item was the last one in the selection and is unselected, the selection is stopped.
      * Note that the selection must already be started (actionMode must not be null).
      *
@@ -298,7 +294,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String itemIdToDelete = args != null ? args.getString("itemIdToDelete") :null;
         Uri uri = ContentUris.withAppendedId(ProductsContentProvider.PRODUCTS_CONTENT_URI, Integer.valueOf(itemIdToDelete));
         if(itemIdToDelete!=null){
-            return new DeleteProductLoader(this,uri);
+            return new DeleteLoader(this,uri);
         }
        return null;
     }

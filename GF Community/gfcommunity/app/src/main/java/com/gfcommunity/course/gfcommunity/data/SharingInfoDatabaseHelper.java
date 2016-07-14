@@ -67,7 +67,7 @@ public class SharingInfoDatabaseHelper extends SQLiteOpenHelper {
         values.put(SharingInfoContract.ProductsEntry.PRODUCT_NAME, "Rye flour");
         values.put(SharingInfoContract.ProductsEntry.HOUSE_NO, 147);
         values.put(SharingInfoContract.ProductsEntry.STREET, "Rabi Akiva");
-        values.put(SharingInfoContract.ProductsEntry.CITY, "Bnei Brak");
+        values.put(SharingInfoContract.ProductsEntry.CITY, "Tel Aviv");
         db.insert(SharingInfoContract.ProductsEntry.TABLE_NAME,null, values);
     }
 
@@ -77,7 +77,7 @@ public class SharingInfoDatabaseHelper extends SQLiteOpenHelper {
         values.put(SharingInfoContract.ProductsEntry.PRODUCT_NAME, "Gluten free cookies");
         values.put(SharingInfoContract.ProductsEntry.HOUSE_NO, 25);
         values.put(SharingInfoContract.ProductsEntry.STREET, "Herzel");
-        values.put(SharingInfoContract.ProductsEntry.CITY, "Eilat");
+        values.put(SharingInfoContract.ProductsEntry.CITY, "Tel Aviv");
         values.put(SharingInfoContract.ProductsEntry.PHONE, "0526984458");
         values.put(SharingInfoContract.ProductsEntry.IMAGE_URI, "http://www.lance.com/assets/img/temp/snacks/gf_pb_8pk_crtn.png?1431482040");
         db.insert(SharingInfoContract.ProductsEntry.TABLE_NAME,null, values);
@@ -87,7 +87,7 @@ public class SharingInfoDatabaseHelper extends SQLiteOpenHelper {
         values.put(SharingInfoContract.ProductsEntry.PRODUCT_NAME, "Gluten free pasta");
         values.put(SharingInfoContract.ProductsEntry.HOUSE_NO, 98);
         values.put(SharingInfoContract.ProductsEntry.STREET, "Nakhalat Yitskhak");
-        values.put(SharingInfoContract.ProductsEntry.CITY, "Jerusalem");
+        values.put(SharingInfoContract.ProductsEntry.CITY, "Hadera");
         values.put(SharingInfoContract.ProductsEntry.PHONE, "02-696-7474");
         values.put(SharingInfoContract.ProductsEntry.IMAGE_URI, "http://makingourlifematter.com/wp-content/uploads/2014/02/gf-family-hp.png");
         db.insert(SharingInfoContract.ProductsEntry.TABLE_NAME,null, values);

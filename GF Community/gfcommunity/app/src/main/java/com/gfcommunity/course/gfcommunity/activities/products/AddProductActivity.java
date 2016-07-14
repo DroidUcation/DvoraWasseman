@@ -11,8 +11,6 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
@@ -39,12 +37,11 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.gfcommunity.course.gfcommunity.R;
 import com.gfcommunity.course.gfcommunity.data.SharingInfoContract;
 import com.gfcommunity.course.gfcommunity.data.products.ProductsContentProvider;
-import com.gfcommunity.course.gfcommunity.loaders.InsertProductLoader;
+import com.gfcommunity.course.gfcommunity.loaders.product.InsertProductLoader;
 import com.gfcommunity.course.gfcommunity.firebase.storage.UploadFile;
-import com.gfcommunity.course.gfcommunity.loaders.UpdateProductLoader;
+import com.gfcommunity.course.gfcommunity.loaders.UpdateLoader;
 import com.gfcommunity.course.gfcommunity.model.Product;
 import com.gfcommunity.course.gfcommunity.recyclerView.products.ProductsAdapter;
-import com.gfcommunity.course.gfcommunity.utils.DateFormatUtil;
 import com.gfcommunity.course.gfcommunity.utils.SpinnerAdapter;
 
 import android.net.Uri;
@@ -77,7 +74,7 @@ public class AddProductActivity extends AppCompatActivity implements View.OnClic
     private Uri selectedImage;
     private String productName;
     private String storeName;
-    private String selectedProductId;
+    private Integer selectedProductId;
     private boolean updateActivity = false;
     private Context context;
 
@@ -108,7 +105,7 @@ public class AddProductActivity extends AppCompatActivity implements View.OnClic
         @Override
         public Loader<Integer> onCreateLoader(int id, Bundle args) {
             Uri uri = ContentUris.withAppendedId(ProductsContentProvider.PRODUCTS_CONTENT_URI, Integer.valueOf(selectedProductId));
-            return new UpdateProductLoader(context, setProductValues(args), uri);
+            return new UpdateLoader(context, setProductValues(args), uri);
         }
 
         @Override
@@ -132,8 +129,8 @@ public class AddProductActivity extends AppCompatActivity implements View.OnClic
         initializeViews();//Define views and bind them to events
 
         Intent intent = getIntent();
-        selectedProductId = intent.getStringExtra("selectedProductId");
-        if (selectedProductId != null) {
+        selectedProductId = intent.getIntExtra("selectedProductId",-1);
+        if (selectedProductId != -1) {
             initialEditedProduct();
         }
     }
@@ -170,13 +167,13 @@ public class AddProductActivity extends AppCompatActivity implements View.OnClic
 
             String city = product.getCity();
             int indexCity = 0;
-            for (; indexCity < cityList.length; indexCity++) {
-                if (cityList[indexCity] == city)
+            for (; indexCity < cityList.length - 1; indexCity++) {
+                if (cityList[indexCity].equals(city.trim()))
                     break;
             }
             citiesSpinner.setSelection(indexCity);
             storeStreetEditTxt.setText(product.getStreet());
-            storeHouseNoEditTxt.setText(product.getHoseNum());
+            storeHouseNoEditTxt.setText(product.getHoseNum()+"");
             commentEditTxt.setText(product.getComment());
             String productName = product.getProductName();
             productNameEditTxt.setText(!TextUtils.isEmpty(productName) ? productName : "");
@@ -245,7 +242,7 @@ public class AddProductActivity extends AppCompatActivity implements View.OnClic
 
         //Cities spinner
         String[] cityArray = getResources().getStringArray(R.array.cities_array);
-        String[] cityList = new String[(cityArray.length) + 1];
+        cityList = new String[(cityArray.length) + 1];
         System.arraycopy(cityArray, 0, cityList, 0, cityArray.length);
         cityList[cityArray.length] = getResources().getString(R.string.city_spinner_title);
         citiesSpinner.setPrompt(getResources().getString(R.string.city_spinner_title));
@@ -304,9 +301,9 @@ public class AddProductActivity extends AppCompatActivity implements View.OnClic
                         UploadFile.uploadFile(this, selectedImage, this, "product"); //Upload product image to firebase
                     } else {
                         if (updateActivity) {
-                            getSupportLoaderManager().initLoader(updateLoaderID, null, insertProductLoaderListener).forceLoad();//Initializes the update Loader
-                        } else {
                             getSupportLoaderManager().initLoader(loaderID, null, updateProductLoaderListener).forceLoad();//Initializes the Insert Loader
+                        } else {
+                            getSupportLoaderManager().initLoader(updateLoaderID, null, insertProductLoaderListener).forceLoad();//Initializes the update Loader
                         }
                     }
                 }

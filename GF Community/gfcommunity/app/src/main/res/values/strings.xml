@@ -31,6 +31,8 @@
     <string name="gallery_option">Choose from Gallery</string>
     <string name="cancel_option">Cancel</string>
     <string name="confirm_option">Ok</string>
+    <string name="delete_product">Delete Product</string>
+    <string name="dialog_msg">"Are you sure you want to delete product?"</string>
     <string name="products_fragment_name">Products</string>
     <string name="news_fragment_name">What\'s new</string>
     <string name="recipes_fragment_name">Recipes</string>
@@ -67,7 +69,7 @@
     <string name="diners_number_details">Diners number: %1$d</string>
     <string name="difficulty_preparation_details">Difficulty preparation: %1$s</string>
     <string name="add_ingredient">Add ingredient</string>
-
+    <string name="product_details">Product details</string>
     <string name="tbd">TBD</string>
     <!-->Israel cities array<!-->
     <string-array name="cities_array">

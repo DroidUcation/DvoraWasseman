@@ -1,4 +1,4 @@
-package com.gfcommunity.course.gfcommunity.loaders;
+package com.gfcommunity.course.gfcommunity.loaders.product;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,22 +8,20 @@ import android.support.v4.content.AsyncTaskLoader;
 import com.gfcommunity.course.gfcommunity.data.products.ProductsContentProvider;
 
 /**
- * Update product by asyncTaskLoader
+ * Insert product by asyncTaskLoader
  */
-public class UpdateProductLoader extends AsyncTaskLoader<Integer> {
+public class InsertProductLoader extends AsyncTaskLoader<Uri> {
     private ContentValues values;
     private Context context;
-    private Uri uri;
 
-    public UpdateProductLoader(Context context, ContentValues values, Uri uri) {
+    public InsertProductLoader(Context context, ContentValues values) {
         super(context);
         this.values = values;
         this.context = context;
-        this.uri=uri;
     }
 
     @Override
-    public Integer loadInBackground() {
-        return context.getContentResolver().update(uri, values, null ,null);
+    public Uri loadInBackground() {
+        return context.getContentResolver().insert(ProductsContentProvider.PRODUCTS_CONTENT_URI, values);
     }
 }

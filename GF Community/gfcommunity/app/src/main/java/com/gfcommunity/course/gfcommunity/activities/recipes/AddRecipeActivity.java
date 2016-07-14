@@ -9,7 +9,6 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Environment;
@@ -43,7 +42,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.gfcommunity.course.gfcommunity.R;
 import com.gfcommunity.course.gfcommunity.data.SharingInfoContract;
 import com.gfcommunity.course.gfcommunity.firebase.storage.UploadFile;
-import com.gfcommunity.course.gfcommunity.loaders.InsertRecipeLoader;
+import com.gfcommunity.course.gfcommunity.loaders.recipe.InsertRecipeLoader;
 import com.gfcommunity.course.gfcommunity.recyclerView.recipes.RecipesAdapter;
 import com.gfcommunity.course.gfcommunity.utils.SpinnerAdapter;
 

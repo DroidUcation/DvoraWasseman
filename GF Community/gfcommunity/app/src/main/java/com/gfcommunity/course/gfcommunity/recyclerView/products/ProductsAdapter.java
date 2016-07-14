@@ -74,6 +74,7 @@ public class ProductsAdapter extends SelectableAdapter<ProductsAdapter.ViewHolde
 
             Intent intent = new Intent(context, ProductDetailsActivity.class);
             intent.putExtra("selected_item",product); //Pass selected product to ProductDetailsActivity
+            intent.putExtra("selectedProductId", productID);//send product id to ProductDetailsActivity
             context.startActivity(intent);
         }
 
