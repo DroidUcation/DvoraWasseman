@@ -19,6 +19,7 @@ import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.support.v4.view.MenuItemCompat;
@@ -26,6 +27,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,18 +44,22 @@ import com.gfcommunity.course.gfcommunity.fragments.RecipesFragment;
 import com.gfcommunity.course.gfcommunity.loaders.DeleteLoader;
 import com.gfcommunity.course.gfcommunity.recyclerView.SelectableAdapter;
 import com.gfcommunity.course.gfcommunity.recyclerView.products.ProductsAdapter;
+import com.gfcommunity.course.gfcommunity.recyclerView.recipes.RecipesAdapter;
 import com.gfcommunity.course.gfcommunity.utils.NetworkConnectedUtil;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, ProductsAdapter.ViewHolder.ClickListener, AdapterView.OnItemClickListener , LoaderManager.LoaderCallbacks<Integer>
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, ProductsAdapter.ViewHolder.ClickListener,RecipesAdapter.ViewHolder.ClickListener, AdapterView.OnItemClickListener , LoaderManager.LoaderCallbacks<Integer>
 {
     private SelectableAdapter adapter;
     private int fragmentPosition;
     private Toolbar toolbar;
     private TabLayout tabLayout;
-    private int loaderID = 1;//Delete products loader ID
+    private int loaderID = 1;//Delete loader ID
     private ViewPager viewPager;
-    private int selectedProductId=0;
-    private boolean selectionMode=false;
+    private int selectedProductId = 0;
+    private int selectedRecipeId = 0;
+    private boolean productFragmaent = false;
+    private boolean recipeFragmaent = false;
+    private boolean selectionMode = false;
     static Context context;
     private ViewPagerAdapter viewPagerAdapter;
     private int[] tabIcons = {
@@ -64,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Menu mMenu;
     private ResetLoaderFragment resetLoaderFragment;
     private static int lastSelectedPos = -1;
+    private ShareActionProvider mShareActionProvider;
 
     public interface ResetLoaderFragment
     {
@@ -100,8 +107,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void handleOnBackPress() {
-        if(ProductsFragment.productsAdapter.isSelected(lastSelectedPos)) {
-            toggleSelection(lastSelectedPos);
+        if(productFragmaent) {
+            if (ProductsFragment.productsAdapter.isSelected(lastSelectedPos)) {
+                toggleSelection(lastSelectedPos);
+            }
+        }
+        else if(recipeFragmaent){
+            if (RecipesFragment.recipesAdapter.isSelected(lastSelectedPos)) {
+                toggleSelection(lastSelectedPos);
+            }
         }
     }
 
@@ -207,12 +221,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             toolbar.setTitle(getString(R.string.app_name));
         }
         mMenu.findItem(R.id.action_search).setVisible(!selectionMode);
-        mMenu.findItem(R.id.action_share).setVisible(selectionMode);
+//        MenuItem shareItem = mMenu.findItem(R.id.action_share);
+//        shareItem.setVisible(selectionMode);
+//        mShareActionProvider = (ShareActionProvider) shareItem.getActionProvider();
         mMenu.findItem(R.id.action_favorites).setVisible(selectionMode);
         mMenu.findItem(R.id.action_edit).setVisible(selectionMode);
         mMenu.findItem(R.id.action_delete).setVisible(selectionMode);
         mMenu.findItem(R.id.action_navigate).setVisible(selectionMode);
 }
+
+    // Call to update the share intent
+    private void setShareIntent(Intent shareIntent) {
+        if (mShareActionProvider != null) {
+            mShareActionProvider.setShareIntent(shareIntent);
+        }
+    }
+
     private void setupTabIcons() {
         tabLayout.getTabAt(0).setIcon(tabIcons[0]);
         tabLayout.getTabAt(1).setIcon(tabIcons[1]);
@@ -278,7 +302,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param position Position of the item to toggle the selection state
      */
     private void toggleSelection(int position) {
-        ProductsFragment.productsAdapter.toggleSelection(position);
+        if(productFragmaent) {
+            ProductsFragment.productsAdapter.toggleSelection(position);
+        }
+        else if(recipeFragmaent){
+            RecipesFragment.recipesAdapter.toggleSelection(position);
+        }
         int count = ProductsFragment.productsAdapter.getSelectedItemCount();
 
         if (count == 0) {

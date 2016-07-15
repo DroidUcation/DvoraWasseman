@@ -111,6 +111,28 @@ public class SharingInfoDatabaseHelper extends SQLiteOpenHelper {
         values.put(SharingInfoContract.ProductsEntry.PHONE, "03-731-9958");
         values.put(SharingInfoContract.ProductsEntry.IMAGE_URI,"https://nyoobserver.files.wordpress.com/2015/09/screen-shot-2015-09-22-at-11-02-05-am-e1442935619503.png?w=242&h=300");
         db.insert(SharingInfoContract.ProductsEntry.TABLE_NAME,null, values);
+
+        values = new ContentValues();
+        values.put(SharingInfoContract.RecipesEntry.CATEGORY, "Shkedia");
+
+        values.put(SharingInfoContract.RecipesEntry.INGREDIENTS, "½ pack ready roll short crust pastry ;" +
+                "100 grams chicken/lamb or pork. Cooked and 1/2 inch dice ;" +
+                "1/2 cooked carrot ;" +
+                "1 cooked roast potatoes ;" +
+                "50 grams cooked swede ;" +
+                "10 grams cooked peas ;" +
+                "3 tbsp. of leftover gravy ;" +
+                "1 egg");
+        values.put(SharingInfoContract.RecipesEntry.INSTRUCTIONS, "Pre heat your oven to 180degrees.;" +
+                "Use a large mixing bowl, take the cooked carrot and crush it between your fingers into the bowl, repeat with the swede and potato, and stir in a meat of choice, peas and gravy. Stir until evenly mixed. ;" +
+                "Take the ready rolled pastry and cut out a circle about 10 inches across. You can use a medium sized dinner plate to cut around. Firmly pack the filling along the centre line leaving a 1 inch margin at the edges. ;" +
+                "Brush all around the edge of the pastry with the beaten egg. Carefully lift up both sides of the pastry so that they meet at the top, then pinch them together to seal, ensuring there are no gaps.;" +
+                "Carefully lift onto a grease proof lined baking tray. Now brush the entire pasty with the egg wash. Bake for 45 minutes until golden. ;" +
+                "Serve and enjoy.");
+        values.put(SharingInfoContract.RecipesEntry.RECIPE_IMAGE_URl, "http://www.neelscorner.com/wp-content/uploads/2009/07/wholethaifish2_thumb.jpg");
+        values.put(SharingInfoContract.RecipesEntry.PREPARATION_TIME, "50 minutes");
+        values.put(SharingInfoContract.RecipesEntry.DIFFICULTY_PREPARATION, "Easy");
+       db.insert(SharingInfoContract.RecipesEntry.TABLE_NAME, null, values);
     }
 
     @Override

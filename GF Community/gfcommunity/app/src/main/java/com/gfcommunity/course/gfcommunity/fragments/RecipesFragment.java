@@ -24,18 +24,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gfcommunity.course.gfcommunity.R;
+import com.gfcommunity.course.gfcommunity.activities.MainActivity;
 import com.gfcommunity.course.gfcommunity.activities.recipes.AddRecipeActivity;
 import com.gfcommunity.course.gfcommunity.data.SharingInfoContract;
 import com.gfcommunity.course.gfcommunity.data.recipes.RecipesContentProvider;
 import com.gfcommunity.course.gfcommunity.recyclerView.DividerItemDecoration;
+import com.gfcommunity.course.gfcommunity.recyclerView.products.ProductsAdapter;
 import com.gfcommunity.course.gfcommunity.recyclerView.recipes.RecipesAdapter;
 import com.gfcommunity.course.gfcommunity.utils.NetworkConnectedUtil;
 import com.gfcommunity.course.gfcommunity.utils.SpinnerAdapter;
 
 
-public class RecipesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener , AdapterView.OnItemSelectedListener {
+public class RecipesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener , AdapterView.OnItemSelectedListener ,MainActivity.ResetLoaderFragment {
         private int loaderID = 0; // Identifies a particular Loader being used in this component
-        private RecipesAdapter recipesAdapter;
+        public static RecipesAdapter recipesAdapter;
         private RecyclerView recyclerView;
         private ProgressBar progressBar;
         private String selectedCategory;
@@ -116,7 +118,7 @@ public class RecipesFragment extends Fragment implements LoaderManager.LoaderCal
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
                 progressBar.setVisibility(View.GONE);
                 if (cursor != null && cursor.moveToFirst()) {
-                        recipesAdapter = new RecipesAdapter(context, cursor);
+                        recipesAdapter = new RecipesAdapter(context, cursor,(RecipesAdapter.ViewHolder.ClickListener) getActivity());
                         recyclerView.setAdapter(recipesAdapter);
                         recyclerView.setVisibility(View.VISIBLE);
                         this.getView().setBackgroundColor(Color.TRANSPARENT);
@@ -177,6 +179,11 @@ public class RecipesFragment extends Fragment implements LoaderManager.LoaderCal
 
         public static Fragment getInstance() {
                 return new RecipesFragment();
+        }
+
+        @Override
+        public void resetNow() {
+                getLoaderManager().restartLoader(loaderID, null, this);
         }
 }
 

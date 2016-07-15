@@ -2,6 +2,8 @@ package com.gfcommunity.course.gfcommunity.activities.products;
 
 import android.content.ContentUris;
 import android.content.Context;
+import android.graphics.Color;
+import android.support.design.widget.AppBarLayout;
 import android.support.v7.app.AlertDialog;;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -19,6 +21,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextUtils;
@@ -35,6 +38,7 @@ import android.widget.Button;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.gfcommunity.course.gfcommunity.R;
+import com.gfcommunity.course.gfcommunity.activities.MainActivity;
 import com.gfcommunity.course.gfcommunity.data.SharingInfoContract;
 import com.gfcommunity.course.gfcommunity.data.products.ProductsContentProvider;
 import com.gfcommunity.course.gfcommunity.loaders.product.InsertProductLoader;
@@ -77,6 +81,7 @@ public class AddProductActivity extends AppCompatActivity implements View.OnClic
     private Integer selectedProductId;
     private boolean updateActivity = false;
     private Context context;
+    private Toolbar toolbar;
 
     private LoaderManager.LoaderCallbacks<Uri> insertProductLoaderListener = new LoaderManager.LoaderCallbacks<Uri>() {
         @Override
@@ -250,6 +255,33 @@ public class AddProductActivity extends AppCompatActivity implements View.OnClic
         dataAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);// Drop down layout style - list view with radio button
         citiesSpinner.setAdapter(dataAdapter);
         citiesSpinner.setSelection(dataAdapter.getCount());// show hint
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar_basic);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(toolbar!= null){
+            toolbar.setTitleTextColor(Color.WHITE);
+            toolbar.setTitle(getResources().getString(R.string.add_product));
+//            AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
+//            params.setScrollFlags(0);  // clear all scroll flags
+            setSupportActionBar(toolbar);
+            toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    handleOnBackPress();
+                }
+            });
+        }
+    }
+
+    private void handleOnBackPress() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 
 
