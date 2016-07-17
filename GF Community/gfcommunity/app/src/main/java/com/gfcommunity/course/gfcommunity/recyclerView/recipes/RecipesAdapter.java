@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -26,14 +25,8 @@ import com.gfcommunity.course.gfcommunity.model.Recipe;
 import com.gfcommunity.course.gfcommunity.recyclerView.SelectableAdapter;
 import com.gfcommunity.course.gfcommunity.utils.DateFormatUtil;
 import com.mikhaellopez.circularimageview.CircularImageView;
-
-
 import java.sql.Timestamp;
-
-import java.text.ParseException;
-import java.text.ParsePosition;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Provide views to RecyclerView with data from recipeList.
@@ -102,17 +95,17 @@ public class RecipesAdapter extends SelectableAdapter<RecipesAdapter.ViewHolder>
 
             Intent intent = new Intent(context, RecipeDetailsActivity.class);
             intent.putExtra("selected_item",recipe); //Pass selected recipe to RecipeDetailsActivity
+            intent.putExtra("selectedItemId",position); //Pass selected recipe id to RecipeDetailsActivity
+
             context.startActivity(intent);
         }
 
         @Override
         public boolean onLongClick(View view) {
             if (listener != null) {
-
                 int position = this.getAdapterPosition();
                 cursor.moveToPosition(position);
                 int recipeID = cursor.getInt(cursor.getColumnIndex(SharingInfoContract.RecipesEntry._ID));
-                //v.findViewById(R.id.listRowCard).setBackgroundColor(Color.BLUE);
                 return listener.onItemLongClicked(position,recipeID);
             }
 

@@ -63,7 +63,7 @@ public class ProductDetailsActivity extends AppCompatActivity implements View.On
         resources = getResources();
         Intent intent = getIntent();
         product = (Product) intent.getSerializableExtra("selected_item"); //get current product passed from ProductsAdapter
-        selectedProductId = intent.getIntExtra("selectedProductId", -1);
+        selectedProductId = intent.getIntExtra("selectedItemId", -1);
         storePhoneImg = (ImageView) findViewById(R.id.store_phone_img);
         storePhoneImg.setOnClickListener(this);
         setProductValues(); //Set product details in the textViews
@@ -208,7 +208,7 @@ public class ProductDetailsActivity extends AppCompatActivity implements View.On
                 if (NetworkConnectedUtil.isNetworkAvailable(this)) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppAlertDialogStyle);
                     builder.setTitle(resources.getString(R.string.delete_product));
-                    builder.setMessage(resources.getString(R.string.dialog_msg));
+                    builder.setMessage(resources.getString(R.string.dialog_msg_delete_prod));
 
                     builder.setPositiveButton(resources.getString(R.string.confirm_option), new DialogInterface.OnClickListener() {
                         @Override

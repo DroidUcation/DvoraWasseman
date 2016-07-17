@@ -5,10 +5,13 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
+import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Environment;
@@ -19,6 +22,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -40,16 +44,20 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.gfcommunity.course.gfcommunity.R;
+import com.gfcommunity.course.gfcommunity.activities.MainActivity;
 import com.gfcommunity.course.gfcommunity.data.SharingInfoContract;
+import com.gfcommunity.course.gfcommunity.data.recipes.RecipesContentProvider;
 import com.gfcommunity.course.gfcommunity.firebase.storage.UploadFile;
+import com.gfcommunity.course.gfcommunity.loaders.UpdateLoader;
 import com.gfcommunity.course.gfcommunity.loaders.recipe.InsertRecipeLoader;
+import com.gfcommunity.course.gfcommunity.model.Recipe;
 import com.gfcommunity.course.gfcommunity.recyclerView.recipes.RecipesAdapter;
 import com.gfcommunity.course.gfcommunity.utils.SpinnerAdapter;
 
 import java.io.File;
 import java.util.ArrayList;
 
-public class AddRecipeActivity extends AppCompatActivity  implements LoaderManager.LoaderCallbacks<Uri>, View.OnClickListener, AdapterView.OnItemSelectedListener, UploadFile.OnuploadCompletedListener{
+public class AddRecipeActivity extends AppCompatActivity  implements View.OnClickListener, AdapterView.OnItemSelectedListener, UploadFile.OnuploadCompletedListener{
     private Button addRecipetBtn;
     private EditText recipeNameEditTxt;
     private EditText ingredientsEditTxt;
@@ -61,7 +69,8 @@ public class AddRecipeActivity extends AppCompatActivity  implements LoaderManag
     private ImageView recipeImg;
     private ImageView addIngredientImg;
     private FloatingActionButton addRecipeImgBtn;
-    private int loaderID = 0; //Insert recipes loader ID
+    private int loaderID = 1; //Insert recipes loader ID
+    private int updateLoaderID = 2;//Update recipes loader ID
     private String logTag = AddRecipeActivity.class.getName();
     private String selectedRecipeCategory;
     private String selectedDifficultyPreparation;
@@ -69,13 +78,110 @@ public class AddRecipeActivity extends AppCompatActivity  implements LoaderManag
     private String recipeName;
     private LinearLayout addIngredientsLayout;
     private ArrayList<EditText> ingredientsEditTextsArray;
+    private int selectedRecipeId;
+    private boolean updateActivity = false;
+    private Context context;
+    private Toolbar toolbar;
+
+    private LoaderManager.LoaderCallbacks<Uri> insertRecipeLoaderListener = new LoaderManager.LoaderCallbacks<Uri>() {
+        @Override
+        public Loader<Uri> onCreateLoader(int id, Bundle args) {
+            return new InsertRecipeLoader(context, setRecipeValues(args));
+        }
+
+
+        @Override
+        public void onLoadFinished(Loader<Uri> loader, Uri data) {
+            Log.i(logTag, getString(R.string.recipe_added_msg)+ recipeName);
+            Toast.makeText(context, String.format(getString(R.string.recipe_added_msg), recipeName),Toast.LENGTH_SHORT).show();//TODO: Show inserted successfully popup
+            sendNotification(data); //Send notification
+            finish(); //Close this activity and go back to Main Activity
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Uri> loader) {
+
+        }
+    };
+
+    private LoaderManager.LoaderCallbacks<Integer> updateRecipeLoaderListener = new LoaderManager.LoaderCallbacks<Integer>() {
+
+        @Override
+        public Loader<Integer> onCreateLoader(int id, Bundle args) {
+            Uri uri = ContentUris.withAppendedId(RecipesContentProvider.RECIPES_CONTENT_URI, Integer.valueOf(selectedRecipeId));
+            return new UpdateLoader(context, setRecipeValues(args), uri);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Integer> loader, Integer data) {
+            Log.i(logTag, getString(R.string.recipe_saved_msg)  + recipeName);
+            Toast.makeText(context, String.format(getString(R.string.recipe_saved_msg), recipeName),Toast.LENGTH_SHORT).show();//TODO: Show inserted successfully popup
+            finish(); //Close this activity and go back to Main Activity
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Integer> loader) {
+
+        }
+    };
+
+    private ContentValues setRecipeValues(Bundle args) {
+        String downloadUrlPath = args != null ? args.getString("downloadUrlPath") : "";
+        ContentValues values = new ContentValues();
+        recipeName = recipeNameEditTxt.getText().toString();
+        values.put(SharingInfoContract.RecipesEntry.RECIPE_NAME, !TextUtils.isEmpty(recipeName) ? recipeName : "");
+        String ingredients = ingredientsEditTxt.getText().toString();
+        values.put(SharingInfoContract.RecipesEntry.INGREDIENTS, concatEditTextsArray(ingredientsEditTextsArray)); //Concat ingredientsEditTextsArray array to string separated by ';'
+        String instructions = instructionsEditTxt.getText().toString();
+        values.put(SharingInfoContract.RecipesEntry.INSTRUCTIONS, !TextUtils.isEmpty(instructions) ? instructions : "");
+        values.put(SharingInfoContract.RecipesEntry.CREATED_AT, DateFormat.format("yyyy-MM-dd hh:mm:ss", new java.util.Date()).toString());
+        String preparationTime = preparationTimeEditTxt.getText().toString();
+        values.put(SharingInfoContract.RecipesEntry.PREPARATION_TIME, !TextUtils.isEmpty(preparationTime) ? preparationTime : "");
+        String dinersNumberStr = dinersNumberEditTxt.getText().toString();
+        int dinersNumber = !TextUtils.isEmpty(dinersNumberStr) ? Integer.parseInt(dinersNumberStr) : 0;
+        values.put(SharingInfoContract.RecipesEntry.DINERS_NUMBER, dinersNumber);
+        String recipeStory = recipeStoryEditTxt.getText().toString();
+        values.put(SharingInfoContract.RecipesEntry.RECIPE_STORY, !TextUtils.isEmpty(recipeStory) ? recipeStory : "");
+        values.put(SharingInfoContract.RecipesEntry.DIFFICULTY_PREPARATION, !TextUtils.isEmpty(selectedDifficultyPreparation) && !(selectedDifficultyPreparation.equals(getString(R.string.select_difficulty_preparation))) ? selectedDifficultyPreparation : "");
+        values.put(SharingInfoContract.RecipesEntry.CATEGORY, !TextUtils.isEmpty(selectedRecipeCategory) && !(selectedRecipeCategory.equals(getString(R.string.select_recipe_category))) ? selectedRecipeCategory : "");
+        values.put(SharingInfoContract.RecipesEntry.RECIPE_IMAGE_URl, !TextUtils.isEmpty(downloadUrlPath) ? downloadUrlPath : "");
+        return values;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_recipe);
-
+        context = getBaseContext();
         initializeViews();//Define views and bind them to events
+
+        Intent intent = getIntent();
+        selectedRecipeId = intent.getIntExtra("selectedRecipeId" , -1);
+        if (selectedRecipeId != -1) {
+            initialEditedRecipe();
+        }
+    }
+
+    private void initialEditedRecipe() {
+        updateActivity = true;
+        Uri _uri = ContentUris.withAppendedId(RecipesContentProvider.RECIPES_CONTENT_URI, Long.valueOf(selectedRecipeId));
+        Cursor cursor = this.getContentResolver().query(_uri, null, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            Recipe recipe = RecipesAdapter.setRecipeValues(cursor);
+
+            addRecipetBtn.setText(getString(R.string.save_recipe));
+            recipeNameEditTxt.setText(recipe.getRecipeName());
+            ingredientsEditTxt.setText(recipe.getIngredients());
+            instructionsEditTxt.setText(recipe.getInstructions());
+            preparationTimeEditTxt.setText(recipe.getPreparationTime());
+            dinersNumberEditTxt.setText(recipe.getDinersNumber()+"");
+            recipeStoryEditTxt.setText(recipe.getRecipeStory());
+            //TODO: set values from recipe
+//            recipesCategoriesSpinner = (Spinner) findViewById(R.id.recipes_categories_spinner);
+//            Spinner difficultyPreparationSpinner = (Spinner) findViewById(R.id.difficulty_preparation_spinner);
+//            recipeImg=recipe.getRecipeImgUri();
+
+        }
     }
 
     /**
@@ -131,32 +237,29 @@ public class AddRecipeActivity extends AppCompatActivity  implements LoaderManag
         difficultyPreparationDataAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);// Drop down layout style - list view with radio button
         difficultyPreparationSpinner.setAdapter(difficultyPreparationDataAdapter);
         difficultyPreparationSpinner.setSelection(difficultyPreparationDataAdapter.getCount());// show hint
+        toolbar = (Toolbar) findViewById(R.id.toolbar_basic);
     }
 
     @Override
-    public Loader<Uri> onCreateLoader(int id, Bundle args) {
-        String downloadUrlPath = args != null ? args.getString("downloadUrlPath") : "";
-        ContentValues values = new ContentValues();
-        recipeName = recipeNameEditTxt.getText().toString();
-        values.put(SharingInfoContract.RecipesEntry.RECIPE_NAME, !TextUtils.isEmpty(recipeName) ? recipeName : "");
-        String ingredients = ingredientsEditTxt.getText().toString();
-        values.put(SharingInfoContract.RecipesEntry.INGREDIENTS, concatEditTextsArray(ingredientsEditTextsArray)); //Concat ingredientsEditTextsArray array to string separated by ';'
-        String instructions = instructionsEditTxt.getText().toString();
-        values.put(SharingInfoContract.RecipesEntry.INSTRUCTIONS, !TextUtils.isEmpty(instructions) ? instructions : "");
-        values.put(SharingInfoContract.RecipesEntry.CREATED_AT, DateFormat.format("yyyy-MM-dd hh:mm:ss", new java.util.Date()).toString());
-        String preparationTime = preparationTimeEditTxt.getText().toString();
-        values.put(SharingInfoContract.RecipesEntry.PREPARATION_TIME, !TextUtils.isEmpty(preparationTime) ? preparationTime : "");
-        String dinersNumberStr = dinersNumberEditTxt.getText().toString();
-        int dinersNumber = !TextUtils.isEmpty(dinersNumberStr) ? Integer.parseInt(dinersNumberStr) : 0;
-        values.put(SharingInfoContract.RecipesEntry.DINERS_NUMBER, dinersNumber);
-        String recipeStory = recipeStoryEditTxt.getText().toString();
-        values.put(SharingInfoContract.RecipesEntry.RECIPE_STORY, !TextUtils.isEmpty(recipeStory) ? recipeStory : "");
-        values.put(SharingInfoContract.RecipesEntry.DIFFICULTY_PREPARATION, !TextUtils.isEmpty(selectedDifficultyPreparation) && !(selectedDifficultyPreparation.equals(getString(R.string.select_difficulty_preparation))) ? selectedDifficultyPreparation : "");
-        values.put(SharingInfoContract.RecipesEntry.CATEGORY, !TextUtils.isEmpty(selectedRecipeCategory) && !(selectedRecipeCategory.equals(getString(R.string.select_recipe_category))) ? selectedRecipeCategory : "");
-        values.put(SharingInfoContract.RecipesEntry.RECIPE_IMAGE_URl, !TextUtils.isEmpty(downloadUrlPath) ? downloadUrlPath : "");
+    protected void onResume() {
+        super.onResume();
+        if(toolbar!= null){
+            toolbar.setTitleTextColor(Color.WHITE);
+            toolbar.setTitle(getResources().getString(R.string.add_recipe));
+            setSupportActionBar(toolbar);
+            toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    handleOnBackPress();
+                }
+            });
+        }
+    }
 
-
-        return new InsertRecipeLoader(this, values);
+    private void handleOnBackPress() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 
     /**
@@ -214,27 +317,18 @@ public class AddRecipeActivity extends AppCompatActivity  implements LoaderManag
     }
 
     @Override
-    public void onLoadFinished(Loader<Uri> loader, Uri data) {
-        Log.i(logTag, "Insert recipe succeed: "+ recipeName);
-        Toast.makeText(this,String.format(getString(R.string.recipe_added_msg), recipeName),Toast.LENGTH_SHORT).show();//TODO: Show inserted successfully popup
-        sendNotification(data); //Send notification
-        finish(); //Close this activity and go back to Main Activity
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Uri> loader) {
-
-    }
-
-    @Override
     public void onClick(View view) {
         switch(view.getId()){
             case R.id.add_recipe_btn: //Start Add new recipe activity
                 if(isValidatedForm()) { //Validate inputs
                     if(selectedImage != null) {
-                        UploadFile.uploadFile(this, selectedImage, this, "recipe"); //Upload recipe image to firebase
+                        UploadFile.uploadFile(this, selectedImage, this, "recipe"); //Upload recipe image to firebase storage
                     } else {
-                        getSupportLoaderManager().initLoader(loaderID, null, this).forceLoad();//Initializes the Insert Loader
+                        if (updateActivity) {
+                            getSupportLoaderManager().initLoader(loaderID, null, updateRecipeLoaderListener).forceLoad();//Initializes the Insert Loader
+                        } else {
+                            getSupportLoaderManager().initLoader(updateLoaderID, null, insertRecipeLoaderListener).forceLoad();//Initializes the update Loader
+                        }
                     }
                 }
                 break;
@@ -426,7 +520,7 @@ public class AddRecipeActivity extends AppCompatActivity  implements LoaderManag
     public void onUrlReceived(Uri uri) {
         Bundle bundle= new Bundle();
         bundle.putString("downloadUrlPath",uri.toString());
-        getSupportLoaderManager().initLoader(loaderID,bundle , this).forceLoad();//Initializes the Insert Loader
+        getSupportLoaderManager().initLoader(loaderID,bundle , insertRecipeLoaderListener).forceLoad();//Initializes the Insert Loader
     }
 
     private class RecipeTextWatcher implements TextWatcher {

@@ -26,13 +26,16 @@
     <string name="required_err_msg">%1$s is required</string>
     <string name="store_name">Store name</string>
     <string name="required_err_msg_default">This field is required</string>
+    <string name="save_recipe">Save recipe</string>
     <string name="city_spinner_title">Select city</string>
     <string name="take_photo_option">Take Photo</string>
     <string name="gallery_option">Choose from Gallery</string>
     <string name="cancel_option">Cancel</string>
     <string name="confirm_option">Ok</string>
     <string name="delete_product">Delete Product</string>
-    <string name="dialog_msg">"Are you sure you want to delete product?"</string>
+    <string name="delete_recipe">Delete Recipe</string>
+    <string name="dialog_msg_delete_prod">"Are you sure you want to delete this product?"</string>
+    <string name="dialog_msg_delete_recipe">"Are you sure you want to delete this recipe?"</string>
     <string name="products_fragment_name">Products</string>
     <string name="news_fragment_name">What\'s new</string>
     <string name="recipes_fragment_name">Recipes</string>
@@ -63,6 +66,7 @@
     <string name="add_recipe">Add recipe</string>
     <string name="recipe_notification_title">New Gluten free recipe</string>
     <string name="recipe_added_msg">%1$s Recipe is added successfully</string>
+    <string name="recipe_saved_msg">%1$s Recipe is saved successfully</string>
     <string name="add_recipe_image_title">Add recipe image</string>
     <string name="difficulty_preparation">Difficulty preparation</string>
     <string name="preparation_time_details">Preparation time: %1$s</string>

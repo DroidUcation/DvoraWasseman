@@ -38,6 +38,7 @@ import com.gfcommunity.course.gfcommunity.R;
 import com.gfcommunity.course.gfcommunity.activities.products.AddProductActivity;
 import com.gfcommunity.course.gfcommunity.activities.recipes.AddRecipeActivity;
 import com.gfcommunity.course.gfcommunity.data.products.ProductsContentProvider;
+import com.gfcommunity.course.gfcommunity.data.recipes.RecipesContentProvider;
 import com.gfcommunity.course.gfcommunity.fragments.BlankFragment;
 import com.gfcommunity.course.gfcommunity.fragments.ProductsFragment;
 import com.gfcommunity.course.gfcommunity.fragments.RecipesFragment;
@@ -45,21 +46,22 @@ import com.gfcommunity.course.gfcommunity.loaders.DeleteLoader;
 import com.gfcommunity.course.gfcommunity.recyclerView.SelectableAdapter;
 import com.gfcommunity.course.gfcommunity.recyclerView.products.ProductsAdapter;
 import com.gfcommunity.course.gfcommunity.recyclerView.recipes.RecipesAdapter;
+import com.gfcommunity.course.gfcommunity.utils.FragmentEnum;
 import com.gfcommunity.course.gfcommunity.utils.NetworkConnectedUtil;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, ProductsAdapter.ViewHolder.ClickListener,RecipesAdapter.ViewHolder.ClickListener, AdapterView.OnItemClickListener , LoaderManager.LoaderCallbacks<Integer>
 {
-    private SelectableAdapter adapter;
+    private SelectableAdapter mAdapter;
     private int fragmentPosition;
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private int loaderID = 1;//Delete loader ID
     private ViewPager viewPager;
-    private int selectedProductId = 0;
+    private int selectedItemId = 0;
     private int selectedRecipeId = 0;
-    private boolean productFragmaent = false;
-    private boolean recipeFragmaent = false;
     private boolean selectionMode = false;
+    private Uri uri;
+    FragmentEnum currentFragmentName;
     static Context context;
     private ViewPagerAdapter viewPagerAdapter;
     private int[] tabIcons = {
@@ -71,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ResetLoaderFragment resetLoaderFragment;
     private static int lastSelectedPos = -1;
     private ShareActionProvider mShareActionProvider;
+    private int lastFragmentPos =-1;
 
     public interface ResetLoaderFragment
     {
@@ -104,25 +107,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         FloatingActionButton addFab = (FloatingActionButton)findViewById(R.id.add_fab);
         addFab.setOnClickListener(this);
         setupTabIcons();
+
     }
 
     private void handleOnBackPress() {
-        if(productFragmaent) {
-            if (ProductsFragment.productsAdapter.isSelected(lastSelectedPos)) {
-                toggleSelection(lastSelectedPos);
-            }
-        }
-        else if(recipeFragmaent){
-            if (RecipesFragment.recipesAdapter.isSelected(lastSelectedPos)) {
-                toggleSelection(lastSelectedPos);
-            }
+        if (mAdapter!= null && mAdapter.isSelected(lastSelectedPos)) {
+            toggleSelection(lastSelectedPos);
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        lastSelectedPos = -1;
+        lastSelectedPos = lastFragmentPos = -1;
         selectionMode = false;
         invalidateOptionsMenu();//Declare that the options menu has changed, so should be recreated. The onCreateOptionsMenu(Menu) method will be called the next time it needs to be displayed
     }
@@ -142,13 +139,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent = null;
         switch (item.getItemId()) {
             case R.id.action_edit:
                 item.setChecked(true);
                 if (NetworkConnectedUtil.isNetworkAvailable(this)) {
                     //TODO: find selected item and pass it to AddProductActivity
-                    Intent intent = new Intent(this, AddProductActivity.class);
-                    intent.putExtra("selectedProductId", selectedProductId);//send product id to init
+                    if(currentFragmentName == FragmentEnum.ProductsFragment){
+                         intent = new Intent(this, AddProductActivity.class);
+                        intent.putExtra("selectedProductId", selectedItemId);//send product id to init
+
+                    }
+                    else if(currentFragmentName == FragmentEnum.RecipesFragment){
+                        intent = new Intent(this, AddRecipeActivity.class);
+                        intent.putExtra("selectedRecipeId", selectedItemId);//send product id to init
+                    }
                     startActivity(intent);
                 } else {
                     Toast.makeText(this, getString(R.string.no_internet_connection_msg), Toast.LENGTH_SHORT).show();
@@ -159,8 +164,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 item.setChecked(true);
                 if (NetworkConnectedUtil.isNetworkAvailable(this)) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppAlertDialogStyle);
-                    builder.setTitle(getResources().getString(R.string.delete_product));
-                    builder.setMessage(getResources().getString(R.string.dialog_msg));
+                    if(currentFragmentName == FragmentEnum.ProductsFragment){
+                        builder.setTitle(getResources().getString(R.string.delete_product));
+                        builder.setMessage(getResources().getString(R.string.dialog_msg_delete_prod));
+                        uri = ProductsContentProvider.PRODUCTS_CONTENT_URI;
+                    }
+                    else if(currentFragmentName == FragmentEnum.RecipesFragment){
+                        builder.setTitle(getResources().getString(R.string.delete_recipe));
+                        builder.setMessage(getResources().getString(R.string.dialog_msg_delete_recipe));
+                        uri = RecipesContentProvider.RECIPES_CONTENT_URI;
+                    }
+
 
                     builder.setPositiveButton(getResources().getString(R.string.confirm_option), new DialogInterface.OnClickListener() {
                         @Override
@@ -244,11 +258,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setupViewPager(ViewPager viewPager) {
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                lastFragmentPos = -1;
+                if(lastSelectedPos >= 0){
+                    handleOnBackPress();
+                    lastSelectedPos = -1;
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+
+        });
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewPagerAdapter.addFrag(new BlankFragment(), getResources().getString(R.string.news_fragment_name));
         viewPagerAdapter.addFrag(ProductsFragment.getInstance(), getResources().getString(R.string.products_fragment_name));
-        viewPagerAdapter.addFrag(new RecipesFragment(), getResources().getString(R.string.recipes_fragment_name));
+        viewPagerAdapter.addFrag(new RecipesFragment().getInstance(), getResources().getString(R.string.recipes_fragment_name));
         viewPager.setAdapter(viewPagerAdapter);
+    }
+    public void setAdapter(int position){
+        Fragment fragment = viewPagerAdapter.getItem(position);
+        if(fragment instanceof ProductsFragment) {
+            mAdapter = ProductsFragment.productsAdapter;
+            currentFragmentName = FragmentEnum.ProductsFragment;
+        }
+        else if(fragment instanceof RecipesFragment){
+            mAdapter = RecipesFragment.recipesAdapter;
+            currentFragmentName = FragmentEnum.RecipesFragment;
+        }
+        resetLoaderFragment = (MainActivity.ResetLoaderFragment)viewPagerAdapter.getItem(position);
+        lastFragmentPos = position;
     }
 
     @Override
@@ -262,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onAttachFragment(Fragment fragment) {
         super.onAttachFragment(fragment);
-        resetLoaderFragment = (MainActivity.ResetLoaderFragment)viewPagerAdapter.getItem(1);
+//        resetLoaderFragment = (MainActivity.ResetLoaderFragment)viewPagerAdapter.getItem(1);
     }
 
     /**
@@ -270,7 +317,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void deleteItem() {
         Bundle b = new Bundle();
-        b.putCharSequence("itemIdToDelete", selectedProductId+"");
+        b.putCharSequence("itemIdToDelete", selectedItemId +"");
         getSupportLoaderManager().restartLoader(loaderID, b, this).forceLoad();//Initializes delete Loader
 
     }
@@ -281,16 +328,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public boolean onItemLongClicked(int position,int productID) {
-        if(lastSelectedPos >= 0 && lastSelectedPos != position) {
-            if(ProductsFragment.productsAdapter.isSelected(lastSelectedPos)) {
-                toggleSelection(lastSelectedPos);
-            }
+    public boolean onItemLongClicked(int position,int itemID) {
+        int currentFragmentIndex = viewPager.getCurrentItem();
+        if(lastFragmentPos != currentFragmentIndex ){//if scrolled to other fragment
+            setAdapter(currentFragmentIndex);
         }
-        toggleSelection(position);
-        lastSelectedPos = position;
-        selectedProductId = productID;
-
+        if(mAdapter != null){
+            if(lastSelectedPos >= 0 && lastSelectedPos != position) {
+                if (mAdapter.isSelected(lastSelectedPos)) {
+                    toggleSelection(lastSelectedPos);
+                }
+            }
+            toggleSelection(position);
+            lastSelectedPos = position;
+            selectedItemId = itemID;
+        }
         return true;
     }
 
@@ -302,13 +354,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param position Position of the item to toggle the selection state
      */
     private void toggleSelection(int position) {
-        if(productFragmaent) {
-            ProductsFragment.productsAdapter.toggleSelection(position);
-        }
-        else if(recipeFragmaent){
-            RecipesFragment.recipesAdapter.toggleSelection(position);
-        }
-        int count = ProductsFragment.productsAdapter.getSelectedItemCount();
+        mAdapter.toggleSelection(position);
+        int count = mAdapter.getSelectedItemCount();
 
         if (count == 0) {
             selectionMode = false;
@@ -321,15 +368,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public Loader<Integer> onCreateLoader(int id, Bundle args) {
         String itemIdToDelete = args != null ? args.getString("itemIdToDelete") :null;
-        Uri uri = ContentUris.withAppendedId(ProductsContentProvider.PRODUCTS_CONTENT_URI, Integer.valueOf(itemIdToDelete));
+        uri = ContentUris.withAppendedId(uri, Integer.valueOf(itemIdToDelete));
         if(itemIdToDelete!=null){
-            return new DeleteLoader(this,uri);
+            return new DeleteLoader(this, uri);
         }
        return null;
     }
     @Override
     public void onLoadFinished(Loader<Integer> loader, Integer data) {
-        ProductsFragment.productsAdapter.toggleSelection(selectedProductId);
+        mAdapter.toggleSelection(selectedItemId);
         resetLoaderFragment.resetNow();
 //        adapter.notifyDataSetChanged();
     }
@@ -366,5 +413,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);
         }
+
     }
 }

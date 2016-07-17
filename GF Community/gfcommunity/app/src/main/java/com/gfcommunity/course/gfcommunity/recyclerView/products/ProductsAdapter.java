@@ -24,7 +24,6 @@ import com.gfcommunity.course.gfcommunity.model.Product;
 import com.gfcommunity.course.gfcommunity.recyclerView.SelectableAdapter;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import java.sql.Timestamp;
-import java.util.List;
 
 
 /**
@@ -64,17 +63,17 @@ public class ProductsAdapter extends SelectableAdapter<ProductsAdapter.ViewHolde
         public void onClick(View v) {
             int position = this.getAdapterPosition();
             cursor.moveToPosition(position);
-            int productID = cursor.getInt(cursor.getColumnIndex(SharingInfoContract.ProductsEntry._ID));
-            Product product = productsMap.get(productID);
+            int itemID = cursor.getInt(cursor.getColumnIndex(SharingInfoContract.ProductsEntry._ID));
+            Product product = productsMap.get(itemID);
             //Set the product only if it's the first clicking (the product is not initialized to map)
             if(product == null){
                 product = setProductValues(cursor);
-                productsMap.put(productID, product );
+                productsMap.put(itemID, product );
             }
 
             Intent intent = new Intent(context, ProductDetailsActivity.class);
             intent.putExtra("selected_item",product); //Pass selected product to ProductDetailsActivity
-            intent.putExtra("selectedProductId", productID);//send product id to ProductDetailsActivity
+            intent.putExtra("selectedItemId", itemID);//send product id to ProductDetailsActivity
             context.startActivity(intent);
         }
 
