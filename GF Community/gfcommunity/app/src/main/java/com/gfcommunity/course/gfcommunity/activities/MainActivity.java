@@ -85,13 +85,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         context=this;
         setContentView(R.layout.activity_main);
-        fragmentPosition = getIntent().getIntExtra("fragmentPosition", 1);
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
         params.setScrollFlags(0);  // clear all scroll flags
         toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -100,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
-        viewPager.setCurrentItem(fragmentPosition); //select specific fragment
+
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
         //Adding fab
@@ -115,15 +114,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             toggleSelection(lastSelectedPos);
         }
     }
+    private void setFragmenPosition() {
+        fragmentPosition = getIntent().getIntExtra("fragmentPosition", 1);
+        viewPager.setCurrentItem(fragmentPosition); //select specific fragment
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
+        setFragmenPosition();
         lastSelectedPos = lastFragmentPos = -1;
         selectionMode = false;
         invalidateOptionsMenu();//Declare that the options menu has changed, so should be recreated. The onCreateOptionsMenu(Menu) method will be called the next time it needs to be displayed
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if(mMenu == null) {
@@ -144,17 +147,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.action_edit:
                 item.setChecked(true);
                 if (NetworkConnectedUtil.isNetworkAvailable(this)) {
-                    //TODO: find selected item and pass it to AddProductActivity
-                    if(currentFragmentName == FragmentEnum.ProductsFragment){
-                         intent = new Intent(this, AddProductActivity.class);
+                    if(currentFragmentName == FragmentEnum.ProductsFragment) {
+                        intent = new Intent(this, AddProductActivity.class);
                         intent.putExtra("selectedProductId", selectedItemId);//send product id to init
+                    }
+                    else if(currentFragmentName == FragmentEnum.RecipesFragment) {
+                        intent = new Intent(this, AddRecipeActivity.class);
+                        intent.putExtra("selectedRecipeId", selectedItemId);//send recipe id to init
 
                     }
-                    else if(currentFragmentName == FragmentEnum.RecipesFragment){
-                        intent = new Intent(this, AddRecipeActivity.class);
-                        intent.putExtra("selectedRecipeId", selectedItemId);//send product id to init
-                    }
                     startActivity(intent);
+                    finish();
                 } else {
                     Toast.makeText(this, getString(R.string.no_internet_connection_msg), Toast.LENGTH_SHORT).show();
                 }
@@ -235,13 +238,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             toolbar.setTitle(getString(R.string.app_name));
         }
         mMenu.findItem(R.id.action_search).setVisible(!selectionMode);
-//        MenuItem shareItem = mMenu.findItem(R.id.action_share);
-//        shareItem.setVisible(selectionMode);
+        MenuItem shareItem = mMenu.findItem(R.id.action_share);
+        shareItem.setVisible(selectionMode);
 //        mShareActionProvider = (ShareActionProvider) shareItem.getActionProvider();
         mMenu.findItem(R.id.action_favorites).setVisible(selectionMode);
         mMenu.findItem(R.id.action_edit).setVisible(selectionMode);
         mMenu.findItem(R.id.action_delete).setVisible(selectionMode);
-        mMenu.findItem(R.id.action_navigate).setVisible(selectionMode);
+        mMenu.findItem(R.id.action_navigate).setVisible(selectionMode && currentFragmentName == FragmentEnum.ProductsFragment);
 }
 
     // Call to update the share intent
@@ -309,7 +312,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onAttachFragment(Fragment fragment) {
         super.onAttachFragment(fragment);
-//        resetLoaderFragment = (MainActivity.ResetLoaderFragment)viewPagerAdapter.getItem(1);
     }
 
     /**
@@ -378,7 +380,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onLoadFinished(Loader<Integer> loader, Integer data) {
         mAdapter.toggleSelection(selectedItemId);
         resetLoaderFragment.resetNow();
-//        adapter.notifyDataSetChanged();
     }
 
     @Override

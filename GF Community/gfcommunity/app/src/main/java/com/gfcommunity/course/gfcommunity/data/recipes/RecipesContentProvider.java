@@ -42,6 +42,7 @@ public class RecipesContentProvider extends ContentProvider{
         SharingInfoDatabaseHelper dbHelper= new SharingInfoDatabaseHelper(context);
         //Create a write table database which will trigger its creation if it doesn't already exist.
         db = dbHelper.getWritableDatabase();
+
         return (db == null)? false:true;
     }
 

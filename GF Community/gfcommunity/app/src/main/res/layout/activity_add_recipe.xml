@@ -74,6 +74,16 @@
                 android:layout_width="fill_parent"
                 android:orientation="vertical"
                 android:layout_height="fill_parent">
+                <TextView
+                    android:id="@+id/ingredients_title_txt"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ingredients_title"
+                    android:layout_width="fill_parent"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+                    android:textColor="@color/greenAppColor"
+                    android:layout_marginBottom="@dimen/margin"
+                    android:layout_marginTop="@dimen/margin">
+                </TextView>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:orientation="horizontal"
@@ -97,13 +107,43 @@
             </LinearLayout>
         </LinearLayout>
 
-            <EditText
-                android:id="@+id/instructions"
-                android:layout_height="wrap_content"
-                android:hint="@string/instructions"
-                android:inputType="text"
-                android:layout_width="fill_parent">
-            </EditText>
+            <LinearLayout
+                android:id="@+id/instructions_layout"
+                android:layout_width="fill_parent"
+                android:orientation="vertical"
+                android:layout_height="fill_parent">
+                <TextView
+                    android:id="@+id/instructions_title_txt"
+                    android:layout_height="wrap_content"
+                    android:text="@string/instructions"
+                    android:layout_width="fill_parent"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+                    android:textColor="@color/greenAppColor"
+                    android:layout_marginBottom="@dimen/margin"
+                    android:layout_marginTop="@dimen/margin">
+                </TextView>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:layout_height="fill_parent">
+                    <ImageView
+                        android:id="@+id/add_instruction_img"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:src="@android:drawable/ic_input_add"
+                        android:tint="@color/pinkAppColor"
+                        android:layout_gravity="top"
+                        android:contentDescription="@string/add_ingredient" />
+                    <EditText
+                        android:id="@+id/instructions"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/step"
+                        android:inputType="text"
+                        android:layout_width="fill_parent">
+                    </EditText>
+                </LinearLayout>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/recipe_more_details_title"

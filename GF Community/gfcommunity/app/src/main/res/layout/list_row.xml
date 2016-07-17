@@ -17,13 +17,8 @@
         android:layout_height="@dimen/circle_image_view_size"
         android:layout_centerVertical="true"
         android:layout_marginRight="@dimen/margin"
-        android:contentDescription="Product image"
-        app:civ_border_color="@color/greenAppColor"
-        app:civ_border_width="4dp"
-        app:civ_shadow="true"
-        app:civ_shadow_radius="1"
-        app:civ_shadow_color="#EEEEEE"/>
-
+        android:scaleType="centerCrop"
+        android:contentDescription="Product image"/>
 
     <LinearLayout
         android:layout_toRightOf="@id/row_img"

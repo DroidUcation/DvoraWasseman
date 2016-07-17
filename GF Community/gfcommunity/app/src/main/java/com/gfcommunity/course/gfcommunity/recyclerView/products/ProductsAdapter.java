@@ -39,7 +39,7 @@ public class ProductsAdapter extends SelectableAdapter<ProductsAdapter.ViewHolde
         private TextView title, subTitle, text;
         private RelativeLayout relativeLayout;
         private CircularImageView productImg;
-        private static SparseArray<Product> productsMap = new SparseArray<Product>();//Products map mapped by product ID
+        public static SparseArray<Product> productsMap = new SparseArray<Product>();//Products map mapped by product ID
         private ClickListener listener;
 
         public ViewHolder(View view, ClickListener listener) {
@@ -84,7 +84,6 @@ public class ProductsAdapter extends SelectableAdapter<ProductsAdapter.ViewHolde
                 int position = this.getAdapterPosition();
                 cursor.moveToPosition(position);
                 int productID = cursor.getInt(cursor.getColumnIndex(SharingInfoContract.ProductsEntry._ID));
-                //v.findViewById(R.id.listRowCard).setBackgroundColor(Color.BLUE);
                 return listener.onItemLongClicked(position,productID);
             }
 
@@ -169,10 +168,12 @@ public class ProductsAdapter extends SelectableAdapter<ProductsAdapter.ViewHolde
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .placeholder(R.drawable.product_circle_img)
                     .error(R.drawable.product_circle_img)
+                    .centerCrop()
                     .into(holder.productImg);
         } else {
             holder.productImg.setImageResource(R.drawable.product_circle_img);
         }
+
         if(isSelected(position)){
             holder.relativeLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.greenAppColor));
         }

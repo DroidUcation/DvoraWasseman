@@ -26,4 +26,5 @@
     <dimen name="details_prop_margin_bottom">8dp</dimen>
     <dimen name="details_prop_without_icon_margin_left">24dp</dimen>
     <dimen name="details_prop_with_icon_margin_left">8dp</dimen>
+    <dimen name="instructions_ingredients_txt_view_padding">4dp</dimen>
 </resources>

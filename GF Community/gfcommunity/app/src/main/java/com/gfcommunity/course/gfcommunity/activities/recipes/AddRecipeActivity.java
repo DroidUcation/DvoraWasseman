@@ -18,6 +18,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -68,6 +69,7 @@ public class AddRecipeActivity extends AppCompatActivity  implements View.OnClic
     private Spinner recipesCategoriesSpinner;
     private ImageView recipeImg;
     private ImageView addIngredientImg;
+    private ImageView addInstructionImg;
     private FloatingActionButton addRecipeImgBtn;
     private int loaderID = 1; //Insert recipes loader ID
     private int updateLoaderID = 2;//Update recipes loader ID
@@ -77,11 +79,15 @@ public class AddRecipeActivity extends AppCompatActivity  implements View.OnClic
     private Uri selectedImage;
     private String recipeName;
     private LinearLayout addIngredientsLayout;
+    private LinearLayout addInstructionsLayout;
     private ArrayList<EditText> ingredientsEditTextsArray;
-    private int selectedRecipeId;
+    private ArrayList<EditText> instructionsEditTextsArray;
+	private int selectedRecipeId;
     private boolean updateActivity = false;
     private Context context;
     private Toolbar toolbar;
+    private  String[] recipeCategoriesArray;
+    private String[] difficultyPreparationArray;
 
     private LoaderManager.LoaderCallbacks<Uri> insertRecipeLoaderListener = new LoaderManager.LoaderCallbacks<Uri>() {
         @Override
@@ -114,9 +120,10 @@ public class AddRecipeActivity extends AppCompatActivity  implements View.OnClic
 
         @Override
         public void onLoadFinished(Loader<Integer> loader, Integer data) {
+            RecipesAdapter.ViewHolder.recipesMap.delete(selectedRecipeId);
             Log.i(logTag, getString(R.string.recipe_saved_msg)  + recipeName);
             Toast.makeText(context, String.format(getString(R.string.recipe_saved_msg), recipeName),Toast.LENGTH_SHORT).show();//TODO: Show inserted successfully popup
-            finish(); //Close this activity and go back to Main Activity
+            handleOnBackPress(); //Close this activity and go back to Main Activity
         }
 
         @Override
@@ -133,7 +140,7 @@ public class AddRecipeActivity extends AppCompatActivity  implements View.OnClic
         String ingredients = ingredientsEditTxt.getText().toString();
         values.put(SharingInfoContract.RecipesEntry.INGREDIENTS, concatEditTextsArray(ingredientsEditTextsArray)); //Concat ingredientsEditTextsArray array to string separated by ';'
         String instructions = instructionsEditTxt.getText().toString();
-        values.put(SharingInfoContract.RecipesEntry.INSTRUCTIONS, !TextUtils.isEmpty(instructions) ? instructions : "");
+        values.put(SharingInfoContract.RecipesEntry.INSTRUCTIONS, concatEditTextsArray(instructionsEditTextsArray)); //Concat instructionsEditTextsArray array to string separated by ';'
         values.put(SharingInfoContract.RecipesEntry.CREATED_AT, DateFormat.format("yyyy-MM-dd hh:mm:ss", new java.util.Date()).toString());
         String preparationTime = preparationTimeEditTxt.getText().toString();
         values.put(SharingInfoContract.RecipesEntry.PREPARATION_TIME, !TextUtils.isEmpty(preparationTime) ? preparationTime : "");
@@ -171,16 +178,55 @@ public class AddRecipeActivity extends AppCompatActivity  implements View.OnClic
 
             addRecipetBtn.setText(getString(R.string.save_recipe));
             recipeNameEditTxt.setText(recipe.getRecipeName());
-            ingredientsEditTxt.setText(recipe.getIngredients());
-            instructionsEditTxt.setText(recipe.getInstructions());
             preparationTimeEditTxt.setText(recipe.getPreparationTime());
             dinersNumberEditTxt.setText(recipe.getDinersNumber()+"");
             recipeStoryEditTxt.setText(recipe.getRecipeStory());
-            //TODO: set values from recipe
-//            recipesCategoriesSpinner = (Spinner) findViewById(R.id.recipes_categories_spinner);
-//            Spinner difficultyPreparationSpinner = (Spinner) findViewById(R.id.difficulty_preparation_spinner);
-//            recipeImg=recipe.getRecipeImgUri();
 
+            String imgUrl =  recipe.getRecipeImgUri();
+            if (!TextUtils.isEmpty(imgUrl)) {
+                Glide.with(this).load(imgUrl)
+                        .dontAnimate()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .placeholder(R.drawable.recipes)
+                        .error(R.drawable.recipes)
+                        .centerCrop()
+                        .into(recipeImg);
+            }
+
+            recipesCategoriesSpinner = (Spinner) findViewById(R.id.recipes_categories_spinner);
+            String category = recipe.getCategory();
+            int indexCategory = 0;
+            for (; indexCategory < recipeCategoriesArray.length - 1; indexCategory++) {
+                if (recipeCategoriesArray[indexCategory].equals(category.trim()))
+                    break;
+            }
+            recipesCategoriesSpinner.setSelection(indexCategory);
+
+            Spinner difficultyPreparationSpinner = (Spinner) findViewById(R.id.difficulty_preparation_spinner);
+            String difficultyPreparation = recipe.getDifficultyPreparation();
+            int indexDifficultyPreparation = 0;
+            for (; indexDifficultyPreparation < difficultyPreparationArray.length - 1; indexDifficultyPreparation++) {
+                if (difficultyPreparationArray[indexDifficultyPreparation].equals(difficultyPreparation.trim()))
+                    break;
+            }
+            difficultyPreparationSpinner.setSelection(indexDifficultyPreparation);
+
+            EditText dynamicEdtText;
+            String []ingredients = recipe.getIngredients().split(";");
+            ingredientsEditTxt.setText(ingredients[0]);
+            addIngredientImg.setVisibility(View.GONE);
+            for(int i = 1; i < ingredients.length ; i++) {
+                dynamicEdtText = addDynamicEditText(getString(R.string.ingredient), addIngredientsLayout, ingredientsEditTextsArray);
+                dynamicEdtText.setText(ingredients[i]);
+            }
+
+            String []instructions = recipe.getInstructions().split(";");
+            instructionsEditTxt.setText(instructions[0]);
+            addInstructionImg.setVisibility(View.GONE);
+            for(int i = 1; i < instructions.length ; i++) {
+                dynamicEdtText = addDynamicEditText(getString(R.string.step), addInstructionsLayout, instructionsEditTextsArray);
+                dynamicEdtText.setText(instructions[i]);
+            }
         }
     }
 
@@ -203,15 +249,22 @@ public class AddRecipeActivity extends AppCompatActivity  implements View.OnClic
         recipeImg = (ImageView)findViewById(R.id.recipe_img);
         addIngredientImg = (ImageView)findViewById(R.id.add_ingredient_img);
         addIngredientsLayout = (LinearLayout) findViewById(R.id.ingredients_layout);
+        addInstructionImg = (ImageView)findViewById(R.id. add_instruction_img);
+        addInstructionsLayout = (LinearLayout) findViewById(R.id.instructions_layout);
 
         //Array of edit text for ingredients
         ingredientsEditTextsArray = new ArrayList<EditText>();
         ingredientsEditTextsArray.add(ingredientsEditTxt);
 
+        //Array of edit text for instructions
+        instructionsEditTextsArray = new ArrayList<EditText>();
+        instructionsEditTextsArray.add(instructionsEditTxt);
+
         //Bind views to Listener
         addRecipetBtn.setOnClickListener(this);
         addRecipeImgBtn.setOnClickListener(this);
         addIngredientImg.setOnClickListener(this);
+        addInstructionImg.setOnClickListener(this);
         recipesCategoriesSpinner.setOnItemSelectedListener(this);
         difficultyPreparationSpinner.setOnItemSelectedListener(this);
         recipeNameEditTxt.addTextChangedListener(new RecipeTextWatcher(recipeNameEditTxt));
@@ -220,7 +273,7 @@ public class AddRecipeActivity extends AppCompatActivity  implements View.OnClic
 
         //Categories spinner
         String[] recipeCategoriesArrayTemp = getResources().getStringArray(R.array.recipe_categories_array);
-        String[] recipeCategoriesArray = new String[(recipeCategoriesArrayTemp.length)+1];
+        recipeCategoriesArray = new String[(recipeCategoriesArrayTemp.length)+1];
         System.arraycopy(recipeCategoriesArrayTemp, 0, recipeCategoriesArray, 0, recipeCategoriesArrayTemp.length);
         recipeCategoriesArray[recipeCategoriesArrayTemp.length] = getResources().getString(R.string.select_recipe_category);
         SpinnerAdapter dataAdapter = new SpinnerAdapter(this, recipeCategoriesArray, android.R.layout.simple_spinner_item);
@@ -230,7 +283,7 @@ public class AddRecipeActivity extends AppCompatActivity  implements View.OnClic
 
         //Difficulty Preparation spinner
         String[] difficultyPreparationArrayTemp = getResources().getStringArray(R.array.difficulty_recipe_preparation_array);
-        String[] difficultyPreparationArray = new String[(difficultyPreparationArrayTemp.length)+1];
+        difficultyPreparationArray = new String[(difficultyPreparationArrayTemp.length)+1];
         System.arraycopy(difficultyPreparationArrayTemp, 0, difficultyPreparationArray, 0, difficultyPreparationArrayTemp.length);
         difficultyPreparationArray[difficultyPreparationArrayTemp.length] = getResources().getString(R.string.select_difficulty_preparation);
         SpinnerAdapter difficultyPreparationDataAdapter = new SpinnerAdapter(this, difficultyPreparationArray, android.R.layout.simple_spinner_item);
@@ -244,10 +297,15 @@ public class AddRecipeActivity extends AppCompatActivity  implements View.OnClic
     protected void onResume() {
         super.onResume();
         if(toolbar!= null){
+            if(updateActivity){
+                toolbar.setTitle(getResources().getString(R.string.edit_recipe));
+            }
+            else{
+                toolbar.setTitle(getResources().getString(R.string.add_recipe));
+            }
             toolbar.setTitleTextColor(Color.WHITE);
-            toolbar.setTitle(getResources().getString(R.string.add_recipe));
             setSupportActionBar(toolbar);
-            toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            toolbar.setNavigationIcon(R.drawable.ic_menu_left_white_24dp);
             toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -259,7 +317,14 @@ public class AddRecipeActivity extends AppCompatActivity  implements View.OnClic
 
     private void handleOnBackPress() {
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("fragmentPosition", 2);
         startActivity(intent);
+        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        handleOnBackPress();
     }
 
     /**
@@ -316,13 +381,32 @@ public class AddRecipeActivity extends AppCompatActivity  implements View.OnClic
         notificationManager.notify(1, n);
     }
 
+    /**
+     * Add editText to the layout param and editTextsArray param
+     * @param hint
+     * @param layout
+     * @param editTextsArray
+     */
+    public EditText addDynamicEditText(String hint, LinearLayout layout, ArrayList<EditText> editTextsArray) {
+        EditText edtView = new EditText(this);
+        LayoutParams lParams = new LinearLayout.LayoutParams(
+                LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        edtView.setHint(hint);
+        edtView.setLayoutParams(lParams);
+        edtView.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        edtView.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.greenAppColor), PorterDuff.Mode.SRC_ATOP);
+        layout.addView(edtView);
+        editTextsArray.add(edtView);
+        return edtView;
+    }
+
     @Override
     public void onClick(View view) {
         switch(view.getId()){
             case R.id.add_recipe_btn: //Start Add new recipe activity
                 if(isValidatedForm()) { //Validate inputs
                     if(selectedImage != null) {
-                        UploadFile.uploadFile(this, selectedImage, this, "recipe"); //Upload recipe image to firebase storage
+                        UploadFile.uploadFile(this, selectedImage, this, "recipe"); //Upload recipe image to firebase
                     } else {
                         if (updateActivity) {
                             getSupportLoaderManager().initLoader(loaderID, null, updateRecipeLoaderListener).forceLoad();//Initializes the Insert Loader
@@ -337,18 +421,18 @@ public class AddRecipeActivity extends AppCompatActivity  implements View.OnClic
                 break;
             case R.id.add_ingredient_img:
                 try{
-                    EditText edtView = new EditText(this);
-                    LayoutParams lParams = new LinearLayout.LayoutParams(
-                            LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-                    edtView.setHint(getString(R.string.ingredient));
-                    edtView.setLayoutParams(lParams);
-                    edtView.setInputType(InputType.TYPE_CLASS_TEXT);
-                    edtView.getBackground().setColorFilter(getResources().getColor(R.color.greenAppColor), PorterDuff.Mode.SRC_IN);
-                    addIngredientsLayout.addView(edtView);
-                    ingredientsEditTextsArray.add(edtView);
+                    addDynamicEditText(getString(R.string.ingredient), addIngredientsLayout, ingredientsEditTextsArray);
                     break;
                 }catch(Exception e){
                     Log.d(logTag, "Failed to create new ingredients edit text");
+                }
+
+            case R.id.add_instruction_img:
+                try{
+                    addDynamicEditText(getString(R.string.step), addInstructionsLayout, instructionsEditTextsArray);
+                    break;
+                }catch(Exception e){
+                    Log.d(logTag, "Failed to create new instructions edit text");
                 }
         }
     }
@@ -376,7 +460,7 @@ public class AddRecipeActivity extends AppCompatActivity  implements View.OnClic
     private void selectImage() {
         Uri selectedImage;
         final CharSequence[] options = { getResources().getString(R.string.take_photo_option),getResources().getString(R.string.gallery_option),getResources().getString(R.string.cancel_option)};
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppAlertDialogStyle);
         builder.setTitle(getString(R.string.add_recipe_image_title));
         builder.setItems(options, new DialogInterface.OnClickListener() {
 

@@ -4,6 +4,8 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.design.widget.AppBarLayout;
+import android.graphics.PorterDuff;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -117,7 +119,8 @@ public class AddProductActivity extends AppCompatActivity implements View.OnClic
         public void onLoadFinished(Loader<Integer> loader, Integer data) {
             Log.i(logTag, "Update product succeed: " + productName);
             Toast.makeText(context, String.format(getString(R.string.product_saved_msg), productName), Toast.LENGTH_SHORT).show();//TODO: Show inserted successfully popup
-            finish(); //Close this activity and go back to Main Activity
+            ProductsAdapter.ViewHolder.productsMap.delete(selectedProductId);
+            handleOnBackPress(); //Close this activity and go back to Main Activity
         }
 
         @Override
@@ -186,12 +189,11 @@ public class AddProductActivity extends AppCompatActivity implements View.OnClic
 
             String imgUrl = product.getImgUrl();
             if (!TextUtils.isEmpty(imgUrl)) {
-                //imgUrl = "https://firebasestorage.googleapis.com/v0/b/gf-community.appspot.com/o/images%2Fproduct_img14676540477212278?alt=media&token=d6a5d69a-b644-410d-89d8-14bfff807833";
                 Glide.with(this).load(imgUrl)
                         .dontAnimate()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .placeholder(R.xml.progress) //TODO: put loading icon
-                        .error(R.drawable.filter) //TODO: put product icon
+                        .placeholder(R.drawable.products)
+                        .error(R.drawable.products)
                         .into(productImg);
             }
 
@@ -265,11 +267,17 @@ public class AddProductActivity extends AppCompatActivity implements View.OnClic
         super.onResume();
         if(toolbar!= null){
             toolbar.setTitleTextColor(Color.WHITE);
-            toolbar.setTitle(getResources().getString(R.string.add_product));
+            if(updateActivity){
+                toolbar.setTitle(getResources().getString(R.string.edit_product));
+            }
+            else{
+                toolbar.setTitle(getResources().getString(R.string.add_product));
+            }
+
 //            AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
 //            params.setScrollFlags(0);  // clear all scroll flags
             setSupportActionBar(toolbar);
-            toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            toolbar.setNavigationIcon(R.drawable.ic_menu_left_white_24dp);
             toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -278,10 +286,16 @@ public class AddProductActivity extends AppCompatActivity implements View.OnClic
             });
         }
     }
+    @Override
+    public void onBackPressed() {
+        handleOnBackPress();
+    }
 
     private void handleOnBackPress() {
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("fragmentPosition", 1);
         startActivity(intent);
+        finish();
     }
 
 
@@ -384,7 +398,6 @@ public class AddProductActivity extends AppCompatActivity implements View.OnClic
             }
 
         });
-
         builder.show();
 
     }

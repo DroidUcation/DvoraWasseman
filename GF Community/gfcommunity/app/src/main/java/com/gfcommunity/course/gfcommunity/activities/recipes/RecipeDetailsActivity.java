@@ -49,7 +49,7 @@ public class RecipeDetailsActivity extends AppCompatActivity implements LoaderMa
         toolbar = (Toolbar) findViewById(R.id.toolbar_details);
         toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+        toolbar.setNavigationIcon(R.drawable.ic_menu_left_white_24dp);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -61,9 +61,16 @@ public class RecipeDetailsActivity extends AppCompatActivity implements LoaderMa
         selectedRecipeId = intent.getIntExtra("selectedItemId", -1);
         setRecipeValues(); //Set recipe details in the textViews
     }
+    @Override
+    public void onBackPressed() {
+        handleOnBackPress();
+    }
+
     private void handleOnBackPress() {
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("fragmentPosition", 2);
         startActivity(intent);
+        finish();
     }
 
     @Override
@@ -83,7 +90,7 @@ public class RecipeDetailsActivity extends AppCompatActivity implements LoaderMa
         mMenu.findItem(R.id.action_favorites).setVisible(true);
         mMenu.findItem(R.id.action_edit).setVisible(true);
         mMenu.findItem(R.id.action_delete).setVisible(true);
-        mMenu.findItem(R.id.action_navigate).setVisible(true);
+        mMenu.findItem(R.id.action_navigate).setVisible(false);
     }
 
     /**
@@ -107,16 +114,21 @@ public class RecipeDetailsActivity extends AppCompatActivity implements LoaderMa
 
         //Ingredients RecyclerView
         RecyclerView ingredientsRecyclerView = (RecyclerView)findViewById(R.id.ingredients_recycler_view);
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
-        ingredientsRecyclerView.setLayoutManager(mLayoutManager);
+        RecyclerView.LayoutManager ingredientsLayoutManager = new LinearLayoutManager(this);
+        ingredientsRecyclerView.setLayoutManager(ingredientsLayoutManager);
         ingredientsRecyclerView.setItemAnimator(new DefaultItemAnimator());
         String [] ingredientsArray = recipe.getIngredients().split(";");
         InstructionsAndIngredientsAdapter ingredientsAdapter= new InstructionsAndIngredientsAdapter(this, ingredientsArray);
         ingredientsRecyclerView.setAdapter(ingredientsAdapter);
 
-        TextView instructionsTxt = (TextView) findViewById(R.id.instructions_txt);
-        String instructions = recipe.getInstructions();
-        instructionsTxt.setText(!TextUtils.isEmpty(instructions) ? instructions : "");
+        //Instructions RecyclerView
+        RecyclerView instructionsRecyclerView = (RecyclerView)findViewById(R.id.instructions_recycler_view);
+        RecyclerView.LayoutManager instructionsLayoutManager = new LinearLayoutManager(this);
+        instructionsRecyclerView.setLayoutManager(instructionsLayoutManager);
+        instructionsRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        String [] instructionsArray = recipe.getInstructions().split(";");
+        InstructionsAndIngredientsAdapter instructionsAdapter= new InstructionsAndIngredientsAdapter(this, instructionsArray);
+        instructionsRecyclerView.setAdapter(instructionsAdapter);
 
         TextView preparationTimeTxt = (TextView) findViewById(R.id.preparation_time_txt);
         String preparationTime = recipe.getPreparationTime();
@@ -167,6 +179,7 @@ public class RecipeDetailsActivity extends AppCompatActivity implements LoaderMa
                     intent = new Intent(this, AddRecipeActivity.class);
                     intent.putExtra("selectedRecipeId", selectedRecipeId);//send product id to init
                     startActivity(intent);
+                    finish();
                 } else {
                     Toast.makeText(this, getString(R.string.no_internet_connection_msg), Toast.LENGTH_SHORT).show();
                 }
@@ -213,9 +226,7 @@ public class RecipeDetailsActivity extends AppCompatActivity implements LoaderMa
      * perform delete item action
      */
     private void deleteItem() {
-        Bundle b = new Bundle();
-        b.putCharSequence("itemIdToDelete", selectedRecipeId +"");
-        getSupportLoaderManager().restartLoader(loaderID, b, this).forceLoad();//Initializes delete Loader
+        getSupportLoaderManager().restartLoader(loaderID, null, this).forceLoad();//Initializes delete Loader
 
     }
 

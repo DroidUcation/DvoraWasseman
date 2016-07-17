@@ -62,7 +62,7 @@ public class RecipesAdapter extends SelectableAdapter<RecipesAdapter.ViewHolder>
         private ClickListener listener;
         private RelativeLayout relativeLayout;
 
-        private static SparseArray<Recipe> recipesMap = new SparseArray<Recipe>();//Recipes map mapped by recipe ID
+        public static SparseArray<Recipe> recipesMap = new SparseArray<Recipe>();//Recipes map mapped by recipe ID
 
         public ViewHolder(View view, ClickListener listener) {
             super(view);
@@ -95,7 +95,7 @@ public class RecipesAdapter extends SelectableAdapter<RecipesAdapter.ViewHolder>
 
             Intent intent = new Intent(context, RecipeDetailsActivity.class);
             intent.putExtra("selected_item",recipe); //Pass selected recipe to RecipeDetailsActivity
-            intent.putExtra("selectedItemId",position); //Pass selected recipe id to RecipeDetailsActivity
+            intent.putExtra("selectedItemId",recipeID); //Pass selected recipe id to RecipeDetailsActivity
 
             context.startActivity(intent);
         }

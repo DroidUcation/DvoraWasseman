@@ -53,7 +53,7 @@ public class ProductDetailsActivity extends AppCompatActivity implements View.On
         toolbar = (Toolbar) findViewById(R.id.toolbar_details);
         toolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+        toolbar.setNavigationIcon(R.drawable.ic_menu_left_white_24dp);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,10 +68,16 @@ public class ProductDetailsActivity extends AppCompatActivity implements View.On
         storePhoneImg.setOnClickListener(this);
         setProductValues(); //Set product details in the textViews
     }
+    @Override
+    public void onBackPressed() {
+        handleOnBackPress();
+    }
 
     private void handleOnBackPress() {
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("fragmentPosition", 1);
         startActivity(intent);
+        finish();
     }
 
     @Override
@@ -179,11 +185,13 @@ public class ProductDetailsActivity extends AppCompatActivity implements View.On
                 dialIntent = new Intent(Intent.ACTION_DIAL);
                 dialIntent.setData(Uri.parse("tel:" + storePhone));
                 startActivity(dialIntent);
+                finish();
                 break;
             case R.id.store_phone_txt:
                 dialIntent = new Intent(Intent.ACTION_DIAL);
                 dialIntent.setData(Uri.parse("tel:" + storePhone));
                 startActivity(dialIntent);
+                finish();
                 break;
         }
     }
@@ -194,10 +202,10 @@ public class ProductDetailsActivity extends AppCompatActivity implements View.On
             case R.id.action_edit:
                 item.setChecked(true);
                 if (NetworkConnectedUtil.isNetworkAvailable(this)) {
-                    //TODO: find selected item and pass it to AddProductActivity
                     Intent intent = new Intent(this, AddProductActivity.class);
                     intent.putExtra("selectedProductId", selectedProductId);//send product id to init
                     startActivity(intent);
+                    finish();
                 } else {
                     Toast.makeText(this, getString(R.string.no_internet_connection_msg), Toast.LENGTH_SHORT).show();
                 }
@@ -260,7 +268,6 @@ public class ProductDetailsActivity extends AppCompatActivity implements View.On
     public void onLoadFinished(Loader<Integer> loader, Integer data) {
         ProductsFragment.productsAdapter.toggleSelection(selectedProductId);
         finish(); //Close this activity and go back to Main Activity
-//        adapter.notifyDataSetChanged();
     }
 
     @Override

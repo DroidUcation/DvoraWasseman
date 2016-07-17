@@ -17,7 +17,8 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark"/>
 
 
         <ImageView
@@ -96,14 +97,12 @@
                 android:layout_marginBottom="@dimen/details_prop_margin_bottom">
             </TextView>
 
-
-            <TextView
-                android:id="@+id/instructions_txt"
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/instructions_recycler_view"
+                android:scrollbars="vertical"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="@string/instructions"
-                android:layout_width="fill_parent"
-                android:layout_marginBottom="@dimen/details_prop_margin_bottom">
-            </TextView>
+                android:layout_marginBottom="@dimen/details_prop_margin_bottom" />
 
             <TextView
                 android:id="@+id/preparation_time_txt"
